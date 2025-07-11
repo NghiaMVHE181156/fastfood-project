@@ -72,7 +72,7 @@ cd backend
 npm run dev
 ```
 
-Backend sẽ chạy tại: http://localhost:3000
+Backend sẽ chạy tại: http://localhost:8080
 
 ### Chạy Frontend
 
