@@ -8,7 +8,7 @@ const options = {
     info: {
       title: "FastFood API",
       version: "1.0.0",
-      description: "API docs cho hệ thống FastFood",
+      description: "API docs for FastFood",
     },
     components: {
       securitySchemes: {
@@ -21,7 +21,7 @@ const options = {
     },
     security: [{ bearerAuth: [] }],
   },
-  apis: ["./src/routes/*.js", "./src/controllers/*.js"],
+  apis: ["./src/routes/*.js", "./src/routes/**/*.js", "./src/controllers/*.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
