@@ -1,13 +1,11 @@
-const express = require("express");
-const app = express();
-const PORT = 3000;
+const app = require("./src/app");
+require("dotenv").config();
 
-app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("Backend is running!");
-});
+const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 FastFood Backend Server is running on port ${PORT}`);
+  console.log(`📍 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`📍 API root: http://localhost:${PORT}/`);
+  console.log(`📖 Swagger UI: http://localhost:${PORT}/api-docs`);
 });
