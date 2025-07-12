@@ -4,7 +4,7 @@ require("dotenv").config();
 const { poolPromise } = require("./config/db");
 const cors = require("./middlewares/cors");
 const errorHandler = require("./middlewares/errorHandler");
-const ApiResponse = require("./utils/response");
+const { successResponse, errorResponse } = require("./utils/response");
 
 // Import swagger docs
 require("./docs/swagger")(app);
@@ -12,12 +12,14 @@ require("./docs/swagger")(app);
 // Import routes
 const authRoutes = require("./routes/auth.route");
 const databaseRoutes = require("./routes/databaseRoutes");
+const categoryRoutes = require("./routes/admin/category.route");
 
 app.use(express.json());
 app.use(cors);
 
 // Mount Auth routes
 app.use("/auth", authRoutes);
+app.use("/admin/categories", categoryRoutes);
 
 // Sử dụng routes khác
 app.use("/api/database", databaseRoutes);
@@ -35,28 +37,29 @@ app.get("/api/health", async (req, res) => {
     const rawTime = result.recordset[0].server_time;
     const formattedTime = toVietnamTimeString(rawTime);
 
-    ApiResponse.success(
-      res,
-      {
+    return res.json(
+      successResponse("Backend is healthy", {
         serverTime: formattedTime,
         database: "Connected to SQL Server successfully!",
-      },
-      "Backend is healthy"
+      })
     );
   } catch (err) {
-    ApiResponse.error(res, "Failed to connect to SQL Server", 500, err);
+    return res
+      .status(500)
+      .json(errorResponse("Failed to connect to SQL Server", "DB_ERROR", err));
   }
 });
 
 // Route gốc
 app.get("/", (req, res) => {
-  ApiResponse.success(res, {
-    message: "FastFood Backend API is running!",
-    endpoints: {
-      health: "/api/health",
-      swagger: "/api-docs",
-    },
-  });
+  return res.json(
+    successResponse("FastFood Backend API is running!", {
+      endpoints: {
+        health: "/api/health",
+        swagger: "/api-docs",
+      },
+    })
+  );
 });
 
 // Middleware xử lý lỗi (phải đặt cuối cùng)

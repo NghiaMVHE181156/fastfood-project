@@ -1,4 +1,4 @@
-const ApiResponse = require("../utils/response");
+const { errorResponse } = require("../utils/response");
 
 // Middleware xử lý lỗi global
 const errorHandler = (err, req, res, next) => {
@@ -6,16 +6,22 @@ const errorHandler = (err, req, res, next) => {
 
   // Lỗi SQL Server
   if (err.code === "ELOGIN" || err.code === "EALREADYCONNECTED") {
-    return ApiResponse.error(res, "Database connection error", 500, err);
+    return res
+      .status(500)
+      .json(errorResponse("Database connection error", "DB_ERROR", err));
   }
 
   // Lỗi validation
   if (err.name === "ValidationError") {
-    return ApiResponse.badRequest(res, "Validation error", err);
+    return res
+      .status(400)
+      .json(errorResponse("Validation error", "VALIDATION_ERROR", err));
   }
 
   // Lỗi mặc định
-  return ApiResponse.error(res, "Internal server error", 500, err);
+  return res
+    .status(500)
+    .json(errorResponse("Internal server error", "INTERNAL_SERVER_ERROR", err));
 };
 
 module.exports = errorHandler;

@@ -39,10 +39,17 @@ class ApiResponse {
 }
 
 // Chuẩn hóa response cho API
-exports.successResponse = (res, message, data = null) => {
-  return res.json({ success: true, message, data });
+exports.successResponse = (message, data = null) => {
+  return { success: true, message, data };
 };
 
-exports.errorResponse = (res, message, status = 400, data = null) => {
-  return res.status(status).json({ success: false, message, data });
+exports.errorResponse = (message, code = "ERROR", details = null) => {
+  return {
+    success: false,
+    message,
+    error: {
+      code,
+      details,
+    },
+  };
 };
