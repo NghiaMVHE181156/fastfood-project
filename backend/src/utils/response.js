@@ -38,4 +38,11 @@ class ApiResponse {
   }
 }
 
-module.exports = ApiResponse;
+// Chuẩn hóa response cho API
+exports.successResponse = (res, message, data = null) => {
+  return res.json({ success: true, message, data });
+};
+
+exports.errorResponse = (res, message, status = 400, data = null) => {
+  return res.status(status).json({ success: false, message, data });
+};

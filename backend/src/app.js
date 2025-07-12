@@ -6,13 +6,20 @@ const cors = require("./middlewares/cors");
 const errorHandler = require("./middlewares/errorHandler");
 const ApiResponse = require("./utils/response");
 
+// Import swagger docs
+require("./docs/swagger")(app);
+
 // Import routes
+const authRoutes = require("./routes/auth.route");
 const databaseRoutes = require("./routes/databaseRoutes");
 
 app.use(express.json());
 app.use(cors);
 
-// Sử dụng routes
+// Mount Auth routes
+app.use("/auth", authRoutes);
+
+// Sử dụng routes khác
 app.use("/api/database", databaseRoutes);
 
 const { toVietnamTimeString } = require("./utils/time");
@@ -47,6 +54,7 @@ app.get("/", (req, res) => {
     message: "FastFood Backend API is running!",
     endpoints: {
       health: "/api/health",
+      swagger: "/api-docs",
     },
   });
 });
