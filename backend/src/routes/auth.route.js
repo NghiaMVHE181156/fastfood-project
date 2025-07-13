@@ -124,99 +124,19 @@ router.post("/register", authController.register);
  */
 router.post("/login", authController.login);
 
-/**
- * @swagger
- * /auth/profile:
- *   get:
- *     summary: Get user profile information
- *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Get profile successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *       401:
- *         description: Invalid or missing token
- */
-router.get("/profile", authMiddleware, authController.getProfile);
-
-/**
- * @swagger
- * /auth/admin/profile:
- *   get:
- *     summary: Get admin profile information
- *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Get admin profile successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *       401:
- *         description: Invalid or missing token
- *       403:
- *         description: Access denied - Admin role required
- */
-router.get(
-  "/admin/profile",
-  authMiddleware,
-  requireRole("admin"),
-  authController.getAdminProfile
-);
-
-/**
- * @swagger
- * /auth/shipper/profile:
- *   get:
- *     summary: Get shipper profile information
- *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Get shipper profile successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *       401:
- *         description: Invalid or missing token
- *       403:
- *         description: Access denied - Shipper role required
- */
-router.get(
-  "/shipper/profile",
-  authMiddleware,
-  requireRole("shipper"),
-  authController.getShipperProfile
-);
+// XÓA các route GET profile
+// router.get("/profile", authMiddleware, authController.getProfile);
+// router.get(
+//   "/admin/profile",
+//   authMiddleware,
+//   requireRole("admin"),
+//   authController.getAdminProfile
+// );
+// router.get(
+//   "/shipper/profile",
+//   authMiddleware,
+//   requireRole("shipper"),
+//   authController.getShipperProfile
+// );
 
 module.exports = router;

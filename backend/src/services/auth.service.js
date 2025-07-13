@@ -70,31 +70,3 @@ exports.login = async ({ user_name, password }) => {
     email: user.email,
   };
 };
-
-// Get profile
-exports.getProfile = async (userId, role) => {
-  const pool = await poolPromise;
-  let table, idField, selectFields;
-
-  if (role === "admin") {
-    table = "Admin";
-    idField = "admin_id";
-    selectFields = `${idField}, user_name, email`; // only actual fields
-  } else if (role === "shipper") {
-    table = "Shipper";
-    idField = "shipper_id";
-    selectFields = `${idField}, user_name, full_name, phone, email, created_at`; // actual fields
-  } else {
-    table = "User";
-    idField = "user_id";
-    selectFields = `${idField}, user_name, email, full_name, phone, address, avatar_url, gender, birthdate, status, is_flagged, boom_count, note, created_at`;
-  }
-
-  const result = await pool
-    .request()
-    .input("id", userId)
-    .query(`SELECT ${selectFields} FROM [${table}] WHERE ${idField} = @id`);
-
-  if (result.recordset.length === 0) throw new Error("User not found");
-  return result.recordset[0];
-};

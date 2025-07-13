@@ -15,10 +15,14 @@ const databaseRoutes = require("./routes/databaseRoutes");
 const categoryRoutes = require("./routes/admin/category.route");
 const dishRoutes = require("./routes/admin/dish.route");
 const shipperRoutes = require("./routes/admin/shipper.route");
+const adminProfileRoutes = require("./routes/admin/profile.route");
+const shipperProfileRoutes = require("./routes/shipper/profile.route");
+const profileUploadRoutes = require("./routes/profile.route");
 
 // Import user routes
 const menuRoutes = require("./routes/user/menu.route");
 const orderRoutes = require("./routes/user/order.route");
+const profileRoutes = require("./routes/user/profile.route");
 
 app.use(express.json());
 app.use(cors);
@@ -28,10 +32,14 @@ app.use("/auth", authRoutes);
 app.use("/admin/categories", categoryRoutes);
 app.use("/admin/dishes", dishRoutes);
 app.use("/admin/shippers", shipperRoutes);
+app.use("/admin", adminProfileRoutes);
+app.use("/shipper", shipperProfileRoutes);
+app.use("/profile", profileUploadRoutes);
 
 // Mount user routes
 app.use("/menu", menuRoutes);
 app.use("/orders", orderRoutes);
+app.use("/user/profile", profileRoutes);
 
 // Sử dụng routes khác
 app.use("/api/database", databaseRoutes);
