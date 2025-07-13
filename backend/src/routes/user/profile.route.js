@@ -16,25 +16,56 @@ const profileController = require("../../controllers/user/profile.controller");
  *       properties:
  *         user_id:
  *           type: integer
- *           description: ID của user
+ *           description: User ID
+ *         user_name:
+ *           type: string
+ *           description: Username
  *         email:
  *           type: string
  *           format: email
- *           description: Email của user
+ *           description: Email
  *         full_name:
  *           type: string
- *           description: Họ tên đầy đủ
+ *           description: Full name
  *         phone:
  *           type: string
- *           description: Số điện thoại
+ *           description: Phone number
  *         address:
  *           type: string
  *           nullable: true
- *           description: Địa chỉ
+ *           description: Address
  *         avatar_url:
  *           type: string
  *           nullable: true
- *           description: URL avatar
+ *           description: Avatar URL
+ *         gender:
+ *           type: string
+ *           enum: [male, female, other]
+ *           nullable: true
+ *           description: Gender
+ *         birthdate:
+ *           type: string
+ *           format: date
+ *           nullable: true
+ *           description: Birthdate
+ *         status:
+ *           type: string
+ *           enum: [active, inactive, banned]
+ *           description: Account status
+ *         is_flagged:
+ *           type: boolean
+ *           description: Is flagged
+ *         boom_count:
+ *           type: integer
+ *           description: Boom count
+ *         note:
+ *           type: string
+ *           nullable: true
+ *           description: Note
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           description: Created at
  *     UpdateProfileRequest:
  *       type: object
  *       required:
@@ -45,15 +76,30 @@ const profileController = require("../../controllers/user/profile.controller");
  *           type: string
  *           minLength: 2
  *           maxLength: 100
- *           description: Họ tên đầy đủ
+ *           description: Full name
  *         phone:
  *           type: string
  *           pattern: '^[0-9]{10,11}$'
- *           description: Số điện thoại (10-11 chữ số)
+ *           description: Phone number (10-11 digits)
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: Email (optional)
  *         address:
  *           type: string
  *           maxLength: 255
- *           description: Địa chỉ (tùy chọn)
+ *           description: Address (optional)
+ *         avatar_url:
+ *           type: string
+ *           description: Avatar URL (optional)
+ *         gender:
+ *           type: string
+ *           enum: [male, female, other]
+ *           description: Gender (optional)
+ *         birthdate:
+ *           type: string
+ *           format: date
+ *           description: Birthdate (optional)
  */
 
 // Middleware xử lý validation errors
@@ -136,9 +182,13 @@ router.get("/", authMiddleware, profileController.getProfile);
  *           schema:
  *             $ref: '#/components/schemas/UpdateProfileRequest'
  *           example:
+ *             email: "nguyenvana@example.com"
  *             full_name: "Nguyễn Văn B"
  *             phone: "0909000111"
  *             address: "456 Nguyễn Huệ"
+ *             avatar_url: "https://example.com/avatar.jpg"
+ *             gender: "male"
+ *             birthdate: "1990-01-01"
  *     responses:
  *       200:
  *         description: Cập nhật thông tin thành công

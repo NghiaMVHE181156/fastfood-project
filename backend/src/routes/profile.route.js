@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const uploadImage = require("../utils/uploadImage");
+const multer = require("multer");
+
+// Multer config cho upload ảnh
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 /**
  * @swagger
@@ -43,15 +48,14 @@ const uploadImage = require("../utils/uploadImage");
  *       500:
  *         description: Lỗi server
  */
-router.post("/upload-image", async (req, res) => {
+router.post("/upload-image", upload.single("image"), async (req, res) => {
   try {
-    if (!req.files || !req.files.image) {
+    if (!req.file) {
       return res
         .status(400)
         .json({ success: false, message: "No image file uploaded" });
     }
-    const buffer = req.files.image.data;
-    const url = await uploadImage(buffer, "uploads");
+    const url = await uploadImage(req.file.buffer, "fastfood/profiles");
     return res.json({ success: true, url });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
