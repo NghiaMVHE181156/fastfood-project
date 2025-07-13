@@ -16,6 +16,9 @@ const categoryRoutes = require("./routes/admin/category.route");
 const dishRoutes = require("./routes/admin/dish.route");
 const shipperRoutes = require("./routes/admin/shipper.route");
 
+// Thêm dòng import route menu (user)
+const menuRoutes = require("./routes/user/menu.route");
+
 app.use(express.json());
 app.use(cors);
 
@@ -24,6 +27,9 @@ app.use("/auth", authRoutes);
 app.use("/admin/categories", categoryRoutes);
 app.use("/admin/dishes", dishRoutes);
 app.use("/admin/shippers", shipperRoutes);
+
+// Mount public menu routes
+app.use("/menu", menuRoutes);
 
 // Sử dụng routes khác
 app.use("/api/database", databaseRoutes);
