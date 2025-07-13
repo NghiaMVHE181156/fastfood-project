@@ -14,6 +14,7 @@ const authRoutes = require("./routes/auth.route");
 const databaseRoutes = require("./routes/databaseRoutes");
 const categoryRoutes = require("./routes/admin/category.route");
 const dishRoutes = require("./routes/admin/dish.route");
+const shipperRoutes = require("./routes/admin/shipper.route");
 
 app.use(express.json());
 app.use(cors);
@@ -22,6 +23,7 @@ app.use(cors);
 app.use("/auth", authRoutes);
 app.use("/admin/categories", categoryRoutes);
 app.use("/admin/dishes", dishRoutes);
+app.use("/admin/shippers", shipperRoutes);
 
 // Sử dụng routes khác
 app.use("/api/database", databaseRoutes);
