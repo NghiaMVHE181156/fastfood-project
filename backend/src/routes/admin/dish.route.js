@@ -51,6 +51,11 @@ router.use(checkRole(["admin"]));
  *         name: sort
  *         schema: { type: string }
  *         description: Sắp xếp (price_asc, price_desc, name_asc, name_desc, category_asc, category_desc)
+ *       - in: query
+ *         name: is_available
+ *         schema:
+ *           type: boolean
+ *         description: "Lọc theo trạng thái hoạt động (true: còn bán, false: đã ẩn)"
  *     responses:
  *       200:
  *         description: Danh sách món ăn

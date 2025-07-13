@@ -1,17 +1,18 @@
 const { poolPromise } = require("../config/db");
 const sql = require("mssql");
 
-// Lấy danh sách món ăn (có phân trang, tìm kiếm, lọc, sắp xếp)
+// Lấy danh sách món ăn (có phân trang, tìm kiếm, lọc, sắp xếp, filter is_available)
 async function getAllDishes({
   page = 1,
   limit = 10,
   search = "",
   category,
   sort,
+  is_available,
 }) {
   let pool = await poolPromise;
   let offset = (page - 1) * limit;
-  let where = "WHERE is_available = 1";
+  let where = "WHERE 1=1";
   let params = [];
 
   if (search) {
@@ -21,6 +22,10 @@ async function getAllDishes({
   if (category) {
     where += " AND category_id = @category_id";
     params.push({ name: "category_id", type: "Int", value: category });
+  }
+  if (typeof is_available !== "undefined") {
+    where += " AND is_available = @is_available";
+    params.push({ name: "is_available", type: "Bit", value: is_available });
   }
 
   let orderBy = "dish_id DESC";
@@ -202,6 +207,6 @@ module.exports = {
   createDish,
   updateDish,
   deleteDish,
-  getDishById,
   restoreDish,
+  getDishById,
 };
