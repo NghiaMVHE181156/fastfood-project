@@ -136,3 +136,15 @@ exports.deleteCategory = async (id) => {
     .query("DELETE FROM Category WHERE category_id = @id");
   return true;
 };
+
+// Kiểm tra category_id tồn tại
+async function isCategoryExists(category_id) {
+  let pool = await poolPromise;
+  let result = await pool
+    .request()
+    .input("category_id", require("mssql").Int, category_id)
+    .query("SELECT category_id FROM Category WHERE category_id = @category_id");
+  return result.recordset.length > 0;
+}
+
+module.exports.isCategoryExists = isCategoryExists;

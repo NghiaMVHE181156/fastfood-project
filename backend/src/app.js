@@ -13,6 +13,7 @@ require("./docs/swagger")(app);
 const authRoutes = require("./routes/auth.route");
 const databaseRoutes = require("./routes/databaseRoutes");
 const categoryRoutes = require("./routes/admin/category.route");
+const dishRoutes = require("./routes/admin/dish.route");
 
 app.use(express.json());
 app.use(cors);
@@ -20,6 +21,7 @@ app.use(cors);
 // Mount Auth routes
 app.use("/auth", authRoutes);
 app.use("/admin/categories", categoryRoutes);
+app.use("/admin/dishes", dishRoutes);
 
 // Sử dụng routes khác
 app.use("/api/database", databaseRoutes);
