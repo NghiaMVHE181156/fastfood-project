@@ -53,7 +53,7 @@ export default function LoginPage() {
         } else if (role === "shipper") {
           navigate("/shipper/dashboard");
         } else {
-          navigate("/dashboard");
+          navigate("/");
         }
       } else {
         // Handle case where response is not successful

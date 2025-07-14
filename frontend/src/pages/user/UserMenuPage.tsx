@@ -1,41 +1,83 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { publicMenuApi } from "@/api/client";
-import type { AxiosResponse } from "axios";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-
-interface Category {
-  category_id: number;
-  name: string;
-  description: string;
-}
-
-interface Dish {
-  dish_id: number;
-  name: string;
-  price: number;
-  image_url: string | null;
-  is_available: boolean;
-  category_id: number;
-}
+import { CategorySection } from "./components/CategorySection";
+import { DishDetailModal } from "./components/DishDetailModal";
+import type { Category, Dish } from "@/types/index";
+import { Header } from "./components/Header";
+import { CartSummary } from "./components/CartSummary";
+import { authApi } from "@/api/auth";
+import type { UserProfile } from "@/types/auth";
+import { toast } from "sonner";
 
 export default function UserMenuPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [dishes, setDishes] = useState<Dish[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [dishDetail, setDishDetail] = useState<Dish | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<
+    Array<{ dish: Dish; quantity: number }>
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+
+  // Fetch user info to check role
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (authApi.isAuthenticated()) {
+        try {
+          const res = await authApi.getProfile();
+          if (res.data.success && res.data.data) {
+            setUser(res.data.data);
+          } else {
+            setUser(null);
+          }
+        } catch {
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const storedCart = localStorage.getItem("cartItems");
+    if (storedCart) {
+      setCartItems(JSON.parse(storedCart));
+    }
+  }, []);
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  // Clear cart on logout
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "token" && !e.newValue) {
+        setCartItems([]);
+        localStorage.removeItem("cartItems");
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const res: AxiosResponse<any> = await publicMenuApi.getCategories();
+        const res = await publicMenuApi.getCategories();
         if (res.data.success && res.data.data) {
           setCategories(res.data.data);
-          setSelectedCategory(res.data.data[0]?.category_id || null);
         }
-      } catch (err) {
+      } catch {
         setError("Không thể tải danh mục");
       } finally {
         setLoading(false);
@@ -45,84 +87,117 @@ export default function UserMenuPage() {
   }, []);
 
   useEffect(() => {
-    if (selectedCategory == null) return;
     const fetchDishes = async () => {
       setLoading(true);
       try {
-        const res: AxiosResponse<any> = await publicMenuApi.getDishes(
-          selectedCategory
-        );
+        const res = await publicMenuApi.getDishes();
         if (res.data.success && res.data.data) {
           setDishes(res.data.data);
         }
-      } catch (err) {
+      } catch {
         setError("Không thể tải món ăn");
       } finally {
         setLoading(false);
       }
     };
     fetchDishes();
-  }, [selectedCategory]);
+  }, []);
+
+  const handleViewDetail = async (dishId: number) => {
+    setLoading(true);
+    try {
+      const res = await publicMenuApi.getDishDetail(dishId);
+      if (res.data.success && res.data.data) {
+        setDishDetail(res.data.data);
+        setIsDetailModalOpen(true);
+      }
+    } catch {
+      setError("Không thể tải chi tiết món ăn");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddToCart = (dish: Dish, quantity = 1) => {
+    if (!user) {
+      toast.error("Please login to continue.", { position: "top-center" });
+      return;
+    }
+    if (user.role !== "user") {
+      toast.error("Only users can add to cart.", { position: "top-center" });
+      return;
+    }
+    setCartItems((prev) => {
+      const existingItem = prev.find(
+        (item) => item.dish.dish_id === dish.dish_id
+      );
+      if (existingItem) {
+        toast.success("Added more to cart!", { position: "top-center" });
+        return prev.map((item) =>
+          item.dish.dish_id === dish.dish_id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      }
+      toast.success("Added to cart!", { position: "top-center" });
+      return [...prev, { dish, quantity }];
+    });
+  };
+
+  const getTotalItems = () =>
+    cartItems.reduce((total, item) => total + item.quantity, 0);
+  const getTotalPrice = () =>
+    cartItems.reduce(
+      (total, item) => total + item.dish.price * item.quantity,
+      0
+    );
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-2">
-      <h1 className="text-2xl font-bold mb-6 text-center">Menu</h1>
-      {error && <div className="text-red-500 text-center mb-4">{error}</div>}
-      {categories.length > 0 && (
-        <div className="flex flex-wrap gap-2 justify-center mb-6">
-          {categories.map((cat) => (
-            <Button
-              key={cat.category_id}
-              variant={
-                selectedCategory === cat.category_id ? "default" : "outline"
-              }
-              onClick={() => setSelectedCategory(cat.category_id)}
-            >
-              {cat.name}
-            </Button>
-          ))}
-        </div>
-      )}
-      {loading ? (
-        <div className="text-center py-12">Đang tải...</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {dishes.length === 0 ? (
-            <div className="col-span-full text-center text-gray-500">
-              Không có món ăn nào
-            </div>
-          ) : (
-            dishes.map((dish) => (
-              <Card key={dish.dish_id} className="h-full flex flex-col">
-                <CardHeader className="p-0">
-                  {dish.image_url ? (
-                    <img
-                      src={dish.image_url}
-                      alt={dish.name}
-                      className="w-full h-40 object-cover rounded-t"
-                    />
-                  ) : (
-                    <div className="w-full h-40 flex items-center justify-center bg-gray-100 text-xs text-gray-400 rounded-t">
-                      No Image
-                    </div>
-                  )}
-                </CardHeader>
-                <CardContent className="flex-1 flex flex-col justify-between p-4">
-                  <div>
-                    <CardTitle className="text-lg mb-2">{dish.name}</CardTitle>
-                    <div className="text-primary font-semibold mb-2">
-                      {dish.price.toLocaleString("vi-VN")} ₫
-                    </div>
-                  </div>
-                  {!dish.is_available && (
-                    <div className="text-xs text-red-500 mt-2">Tạm hết</div>
-                  )}
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-      )}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <Header
+        totalItems={getTotalItems()}
+        totalPrice={getTotalPrice()}
+        formatPrice={formatPrice}
+      />
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {loading ? (
+          <div className="text-center py-12">Đang tải...</div>
+        ) : error ? (
+          <div className="text-center text-red-500 py-12">{error}</div>
+        ) : (
+          <div className="space-y-8">
+            {categories.map((category) => (
+              <CategorySection
+                key={category.category_id}
+                category={category}
+                dishes={dishes}
+                onViewDetail={handleViewDetail}
+                onAddToCart={handleAddToCart}
+              />
+            ))}
+          </div>
+        )}
+        {/* Cart Summary */}
+        <CartSummary
+          cartItems={cartItems}
+          formatPrice={formatPrice}
+          getTotalPrice={getTotalPrice}
+        />
+      </main>
+      {/* Dish Detail Modal */}
+      <DishDetailModal
+        dish={dishDetail}
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        onAddToCart={handleAddToCart}
+      />
     </div>
   );
 }

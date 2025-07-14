@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import type { Dish, Category } from "@/types/admin-management";
+import type { Dish, Category } from "@/types";
 import { adminApi } from "@/api/adminApi";
 
 export function DishesManagement() {

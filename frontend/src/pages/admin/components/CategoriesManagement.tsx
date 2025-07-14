@@ -32,7 +32,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { Category } from "@/types/admin-management";
+import type { Category } from "@/types";
 import { adminApi } from "@/api/adminApi";
 
 export function CategoriesManagement() {

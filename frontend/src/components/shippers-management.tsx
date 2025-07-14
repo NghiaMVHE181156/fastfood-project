@@ -1,12 +1,25 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Plus, Edit, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useState } from "react";
+import { Plus, Edit, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -15,10 +28,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import type { Shipper } from "@/types/admin-management"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { Shipper } from "@/types";
 
 const mockShippers: Shipper[] = [
   {
@@ -37,18 +50,18 @@ const mockShippers: Shipper[] = [
     phone: "0911222333",
     created_at: "2025-07-11 13:22:39",
   },
-]
+];
 
 export function ShippersManagement() {
-  const [shippers, setShippers] = useState<Shipper[]>(mockShippers)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingShipper, setEditingShipper] = useState<Shipper | null>(null)
+  const [shippers, setShippers] = useState<Shipper[]>(mockShippers);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingShipper, setEditingShipper] = useState<Shipper | null>(null);
   const [formData, setFormData] = useState({
     user_name: "",
     full_name: "",
     email: "",
     phone: "",
-  })
+  });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -57,50 +70,52 @@ export function ShippersManagement() {
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (editingShipper) {
       setShippers(
         shippers.map((shipper) =>
-          shipper.shipper_id === editingShipper.shipper_id ? { ...shipper, ...formData } : shipper,
-        ),
-      )
+          shipper.shipper_id === editingShipper.shipper_id
+            ? { ...shipper, ...formData }
+            : shipper
+        )
+      );
     } else {
       const newShipper: Shipper = {
         shipper_id: Math.max(...shippers.map((s) => s.shipper_id)) + 1,
         ...formData,
         created_at: new Date().toISOString().slice(0, 19).replace("T", " "),
-      }
-      setShippers([...shippers, newShipper])
+      };
+      setShippers([...shippers, newShipper]);
     }
-    setIsDialogOpen(false)
-    setEditingShipper(null)
-    setFormData({ user_name: "", full_name: "", email: "", phone: "" })
-  }
+    setIsDialogOpen(false);
+    setEditingShipper(null);
+    setFormData({ user_name: "", full_name: "", email: "", phone: "" });
+  };
 
   const handleEdit = (shipper: Shipper) => {
-    setEditingShipper(shipper)
+    setEditingShipper(shipper);
     setFormData({
       user_name: shipper.user_name,
       full_name: shipper.full_name,
       email: shipper.email,
       phone: shipper.phone,
-    })
-    setIsDialogOpen(true)
-  }
+    });
+    setIsDialogOpen(true);
+  };
 
   const handleDelete = (shipperId: number) => {
-    setShippers(shippers.filter((shipper) => shipper.shipper_id !== shipperId))
-  }
+    setShippers(shippers.filter((shipper) => shipper.shipper_id !== shipperId));
+  };
 
   const openAddDialog = () => {
-    setEditingShipper(null)
-    setFormData({ user_name: "", full_name: "", email: "", phone: "" })
-    setIsDialogOpen(true)
-  }
+    setEditingShipper(null);
+    setFormData({ user_name: "", full_name: "", email: "", phone: "" });
+    setIsDialogOpen(true);
+  };
 
   return (
     <Card>
@@ -108,7 +123,9 @@ export function ShippersManagement() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Shippers Management</CardTitle>
-            <CardDescription>Manage delivery personnel accounts</CardDescription>
+            <CardDescription>
+              Manage delivery personnel accounts
+            </CardDescription>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -119,9 +136,13 @@ export function ShippersManagement() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{editingShipper ? "Edit Shipper" : "Add New Shipper"}</DialogTitle>
+                <DialogTitle>
+                  {editingShipper ? "Edit Shipper" : "Add New Shipper"}
+                </DialogTitle>
                 <DialogDescription>
-                  {editingShipper ? "Update shipper information" : "Create a new shipper account"}
+                  {editingShipper
+                    ? "Update shipper information"
+                    : "Create a new shipper account"}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit}>
@@ -131,7 +152,9 @@ export function ShippersManagement() {
                     <Input
                       id="user_name"
                       value={formData.user_name}
-                      onChange={(e) => setFormData({ ...formData, user_name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, user_name: e.target.value })
+                      }
                       required
                     />
                   </div>
@@ -140,7 +163,9 @@ export function ShippersManagement() {
                     <Input
                       id="full_name"
                       value={formData.full_name}
-                      onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, full_name: e.target.value })
+                      }
                       required
                     />
                   </div>
@@ -150,7 +175,9 @@ export function ShippersManagement() {
                       id="email"
                       type="email"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
                       required
                     />
                   </div>
@@ -160,13 +187,17 @@ export function ShippersManagement() {
                       id="phone"
                       type="tel"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
                       required
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">{editingShipper ? "Update" : "Create"}</Button>
+                  <Button type="submit">
+                    {editingShipper ? "Update" : "Create"}
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -189,7 +220,9 @@ export function ShippersManagement() {
           <TableBody>
             {shippers.map((shipper) => (
               <TableRow key={shipper.shipper_id}>
-                <TableCell className="font-medium">{shipper.shipper_id}</TableCell>
+                <TableCell className="font-medium">
+                  {shipper.shipper_id}
+                </TableCell>
                 <TableCell>{shipper.user_name}</TableCell>
                 <TableCell>{shipper.full_name}</TableCell>
                 <TableCell>{shipper.email}</TableCell>
@@ -197,10 +230,18 @@ export function ShippersManagement() {
                 <TableCell>{formatDate(shipper.created_at)}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(shipper)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(shipper)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(shipper.shipper_id)}>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(shipper.shipper_id)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -211,5 +252,5 @@ export function ShippersManagement() {
         </Table>
       </CardContent>
     </Card>
-  )
+  );
 }

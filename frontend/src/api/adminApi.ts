@@ -1,10 +1,5 @@
 import apiClient from "@/lib/api-client";
-import type {
-  Category,
-  Dish,
-  Shipper,
-  ApiResponse,
-} from "@/types/admin-management";
+import type { Category, Dish, Shipper, ApiResponse } from "@/types";
 import type { AxiosResponse } from "axios";
 import { toast } from "sonner";
 

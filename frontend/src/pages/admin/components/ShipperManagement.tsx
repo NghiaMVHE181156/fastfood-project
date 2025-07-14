@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { Shipper } from "@/types/admin-management";
+import type { Shipper } from "@/types";
 import { adminApi } from "@/api/adminApi";
 
 export function ShippersManagement() {
