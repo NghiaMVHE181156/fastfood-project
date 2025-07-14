@@ -3,7 +3,7 @@
 import type React from "react";
 
 import { useEffect, useState } from "react";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -55,8 +55,11 @@ export function DishesManagement() {
     price: 0,
     category_id: 0,
     is_available: true,
+    image_url: undefined as string | null | undefined,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Fetch dishes and categories on mount
   useEffect(() => {
@@ -94,8 +97,18 @@ export function DishesManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    let image_url = formData.image_url || null;
+    if (imageFile) {
+      const uploadRes = await adminApi.uploadDishImage(imageFile);
+      if (uploadRes.data.success) {
+        image_url = uploadRes.data.data?.url || null;
+      }
+    }
     if (editingDish) {
-      const res = await adminApi.updateDish(editingDish.dish_id, formData);
+      const res = await adminApi.updateDish(editingDish.dish_id, {
+        ...formData,
+        image_url,
+      });
       if (res.data.success && res.data.data) {
         setDishes(
           dishes.map((dish) =>
@@ -104,9 +117,9 @@ export function DishesManagement() {
         );
       }
     } else {
-      const res = await adminApi.createDish(formData);
+      const res = await adminApi.createDish({ ...formData, image_url });
       if (res.data.success && res.data.data) {
-        setDishes([...dishes, res.data.data]);
+        setDishes([res.data.data, ...dishes]);
       }
     }
     setIsDialogOpen(false);
@@ -117,7 +130,10 @@ export function DishesManagement() {
       price: 0,
       category_id: 0,
       is_available: true,
+      image_url: undefined,
     });
+    setImageFile(null);
+    setImagePreview(null);
   };
 
   const handleEdit = (dish: Dish) => {
@@ -128,15 +144,11 @@ export function DishesManagement() {
       price: dish.price,
       category_id: dish.category_id,
       is_available: dish.is_available,
+      image_url: dish.image_url ?? undefined,
     });
+    setImagePreview(dish.image_url || null);
+    setImageFile(null);
     setIsDialogOpen(true);
-  };
-
-  const handleDelete = async (dishId: number) => {
-    const res = await adminApi.deleteDish(dishId);
-    if (res.data.success) {
-      setDishes(dishes.filter((dish) => dish.dish_id !== dishId));
-    }
   };
 
   const toggleAvailability = async (dishId: number) => {
@@ -158,8 +170,21 @@ export function DishesManagement() {
       price: 0,
       category_id: 0,
       is_available: true,
+      image_url: undefined,
     });
+    setImagePreview(null);
+    setImageFile(null);
     setIsDialogOpen(true);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImagePreview(null);
+    }
   };
 
   return (
@@ -190,6 +215,22 @@ export function DishesManagement() {
               </DialogHeader>
               <form onSubmit={handleSubmit}>
                 <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="image">Image</Label>
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                    {imagePreview && (
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-24 h-24 object-cover rounded mt-2"
+                      />
+                    )}
+                  </div>
                   <div className="grid gap-2">
                     <Label htmlFor="name">Name</Label>
                     <Input
@@ -342,13 +383,6 @@ export function DishesManagement() {
                         onClick={() => handleEdit(dish)}
                       >
                         <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete(dish.dish_id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
