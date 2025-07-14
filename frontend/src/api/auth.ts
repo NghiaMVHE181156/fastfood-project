@@ -37,7 +37,7 @@ export const authApi = {
    * @returns Promise with user profile data
    */
   getProfile: async (): Promise<AxiosResponse<ApiResponse<UserProfile>>> => {
-    return api.get<ApiResponse<UserProfile>>("/auth/profile");
+    return api.get<ApiResponse<UserProfile>>("/user/profile");
   },
 
   /**
@@ -47,7 +47,7 @@ export const authApi = {
   getAdminProfile: async (): Promise<
     AxiosResponse<ApiResponse<UserProfile>>
   > => {
-    return api.get<ApiResponse<UserProfile>>("/auth/admin/profile");
+    return api.get<ApiResponse<UserProfile>>("/admin/profile");
   },
 
   /**
@@ -57,7 +57,7 @@ export const authApi = {
   getShipperProfile: async (): Promise<
     AxiosResponse<ApiResponse<UserProfile>>
   > => {
-    return api.get<ApiResponse<UserProfile>>("/auth/shipper/profile");
+    return api.get<ApiResponse<UserProfile>>("/shipper/profile");
   },
 
   /**

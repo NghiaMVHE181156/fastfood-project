@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,49 +33,54 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Category } from "@/types/admin-management";
-
-const mockCategories: Category[] = [
-  {
-    category_id: 3,
-    name: "Nước uống",
-    description: "Trà sữa, nước ngọt, nước trái cây",
-  },
-  {
-    category_id: 2,
-    name: "Mì",
-    description: "Các món mì đặc sắc",
-  },
-  {
-    category_id: 1,
-    name: "Com",
-    description: "Các món cơm truyền thống",
-  },
-];
+import { adminApi } from "@/api/adminApi";
 
 export function CategoriesManagement() {
-  const [categories, setCategories] = useState<Category[]>(mockCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState({ name: "", description: "" });
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Fetch categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsLoading(true);
+      try {
+        const res = await adminApi.getAllCategories();
+        if (res.data.success && res.data.data) {
+          setCategories(res.data.data);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingCategory) {
       // Update existing category
-      setCategories(
-        categories.map((cat) =>
-          cat.category_id === editingCategory.category_id
-            ? { ...cat, ...formData }
-            : cat
-        )
+      const res = await adminApi.updateCategory(
+        editingCategory.category_id,
+        formData
       );
+      if (res.data.success && res.data.data) {
+        setCategories(
+          categories.map((cat) =>
+            cat.category_id === editingCategory.category_id
+              ? res.data.data
+              : cat
+          )
+        );
+      }
     } else {
       // Add new category
-      const newCategory: Category = {
-        category_id: Math.max(...categories.map((c) => c.category_id)) + 1,
-        ...formData,
-      };
-      setCategories([...categories, newCategory]);
+      const res = await adminApi.createCategory(formData);
+      if (res.data.success && res.data.data) {
+        setCategories([...categories, res.data.data]);
+      }
     }
     setIsDialogOpen(false);
     setEditingCategory(null);
@@ -88,8 +93,11 @@ export function CategoriesManagement() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (categoryId: number) => {
-    setCategories(categories.filter((cat) => cat.category_id !== categoryId));
+  const handleDelete = async (categoryId: number) => {
+    const res = await adminApi.deleteCategory(categoryId);
+    if (res.data.success) {
+      setCategories(categories.filter((cat) => cat.category_id !== categoryId));
+    }
   };
 
   const openAddDialog = () => {
@@ -163,45 +171,49 @@ export function CategoriesManagement() {
         </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {categories.map((category) => (
-              <TableRow key={category.category_id}>
-                <TableCell className="font-medium">
-                  {category.category_id}
-                </TableCell>
-                <TableCell>{category.name}</TableCell>
-                <TableCell>{category.description}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(category)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(category.category_id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
+        {isLoading ? (
+          <div className="text-center py-8">Loading...</div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {categories.map((category) => (
+                <TableRow key={category.category_id}>
+                  <TableCell className="font-medium">
+                    {category.category_id}
+                  </TableCell>
+                  <TableCell>{category.name}</TableCell>
+                  <TableCell>{category.description}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(category)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(category.category_id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

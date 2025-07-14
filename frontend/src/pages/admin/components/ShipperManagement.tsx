@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,28 +32,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Shipper } from "@/types/admin-management";
-
-const mockShippers: Shipper[] = [
-  {
-    shipper_id: 1,
-    user_name: "shipper_acc01",
-    full_name: "Lê Văn Ship",
-    email: "ship01@fastfood.vn",
-    phone: "0909777888",
-    created_at: "2025-07-11 13:22:39",
-  },
-  {
-    shipper_id: 2,
-    user_name: "shipper_acc02",
-    full_name: "Mai Thị Giao",
-    email: "ship02@fastfood.vn",
-    phone: "0911222333",
-    created_at: "2025-07-11 13:22:39",
-  },
-];
+import { adminApi } from "@/api/adminApi";
 
 export function ShippersManagement() {
-  const [shippers, setShippers] = useState<Shipper[]>(mockShippers);
+  const [shippers, setShippers] = useState<Shipper[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingShipper, setEditingShipper] = useState<Shipper | null>(null);
   const [formData, setFormData] = useState({
@@ -62,6 +44,23 @@ export function ShippersManagement() {
     email: "",
     phone: "",
   });
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch shippers on mount
+  useEffect(() => {
+    const fetchShippers = async () => {
+      setIsLoading(true);
+      try {
+        const res = await adminApi.getAllShippers();
+        if (res.data.success && res.data.data) {
+          setShippers(res.data.data);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchShippers();
+  }, []);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -73,23 +72,30 @@ export function ShippersManagement() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingShipper) {
-      setShippers(
-        shippers.map((shipper) =>
-          shipper.shipper_id === editingShipper.shipper_id
-            ? { ...shipper, ...formData }
-            : shipper
-        )
+      const res = await adminApi.updateShipper(
+        editingShipper.shipper_id,
+        formData
       );
+      if (res.data.success && res.data.data) {
+        setShippers(
+          shippers.map((shipper) =>
+            shipper.shipper_id === editingShipper.shipper_id
+              ? res.data.data
+              : shipper
+          )
+        );
+      }
     } else {
-      const newShipper: Shipper = {
-        shipper_id: Math.max(...shippers.map((s) => s.shipper_id)) + 1,
-        ...formData,
-        created_at: new Date().toISOString().slice(0, 19).replace("T", " "),
-      };
-      setShippers([...shippers, newShipper]);
+      // Require password for new shipper
+      const password = prompt("Enter password for new shipper:");
+      if (!password) return;
+      const res = await adminApi.createShipper({ ...formData, password });
+      if (res.data.success && res.data.data) {
+        setShippers([...shippers, res.data.data]);
+      }
     }
     setIsDialogOpen(false);
     setEditingShipper(null);
@@ -107,8 +113,13 @@ export function ShippersManagement() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (shipperId: number) => {
-    setShippers(shippers.filter((shipper) => shipper.shipper_id !== shipperId));
+  const handleDelete = async (shipperId: number) => {
+    const res = await adminApi.deleteShipper(shipperId);
+    if (res.data.success) {
+      setShippers(
+        shippers.filter((shipper) => shipper.shipper_id !== shipperId)
+      );
+    }
   };
 
   const openAddDialog = () => {
@@ -205,51 +216,55 @@ export function ShippersManagement() {
         </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Username</TableHead>
-              <TableHead>Full Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {shippers.map((shipper) => (
-              <TableRow key={shipper.shipper_id}>
-                <TableCell className="font-medium">
-                  {shipper.shipper_id}
-                </TableCell>
-                <TableCell>{shipper.user_name}</TableCell>
-                <TableCell>{shipper.full_name}</TableCell>
-                <TableCell>{shipper.email}</TableCell>
-                <TableCell>{shipper.phone}</TableCell>
-                <TableCell>{formatDate(shipper.created_at)}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(shipper)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(shipper.shipper_id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
+        {isLoading ? (
+          <div className="text-center py-8">Loading...</div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Username</TableHead>
+                <TableHead>Full Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {shippers.map((shipper) => (
+                <TableRow key={shipper.shipper_id}>
+                  <TableCell className="font-medium">
+                    {shipper.shipper_id}
+                  </TableCell>
+                  <TableCell>{shipper.user_name}</TableCell>
+                  <TableCell>{shipper.full_name}</TableCell>
+                  <TableCell>{shipper.email}</TableCell>
+                  <TableCell>{shipper.phone}</TableCell>
+                  <TableCell>{formatDate(shipper.created_at)}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(shipper)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(shipper.shipper_id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

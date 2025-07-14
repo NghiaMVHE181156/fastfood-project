@@ -20,14 +20,31 @@ export interface LoginResponse {
 }
 
 export interface UserProfile {
-  id: number;
+  // For all roles
   user_name: string;
   email: string;
-  full_name: string;
-  phone: string;
-  role: string;
-  created_at: string;
-  updated_at: string;
+  // For user
+  user_id?: number;
+  // For admin
+  admin_id?: number;
+  // For shipper
+  shipper_id?: number;
+  // For all roles (optional, for backward compatibility)
+  id?: number;
+  full_name?: string;
+  phone?: string;
+  role?: string;
+  created_at?: string;
+  updated_at?: string;
+  // User-specific fields
+  address?: string;
+  avatar_url?: string;
+  gender?: string;
+  birthdate?: string;
+  status?: string;
+  is_flagged?: boolean;
+  boom_count?: number;
+  note?: string;
 }
 
 export interface ApiResponse<T> {
