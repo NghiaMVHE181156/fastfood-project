@@ -13,6 +13,8 @@ exports.getProfile = async (req, res) => {
       profile.created_at = fixDateTimeVN(profile.created_at);
     if (profile.birthdate)
       profile.birthdate = fixDateTimeVN(profile.birthdate).slice(0, 10); // chỉ lấy YYYY-MM-DD
+    // Always include role
+    profile.role = "user";
     return res.json(
       successResponse("Fetched user profile successfully", profile)
     );

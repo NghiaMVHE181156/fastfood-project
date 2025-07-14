@@ -29,7 +29,21 @@ export const authApi = {
   login: async (
     data: LoginData
   ): Promise<AxiosResponse<ApiResponse<LoginResponse>>> => {
-    return api.post<ApiResponse<LoginResponse>>("/auth/login", data);
+    const res = await api.post<ApiResponse<LoginResponse>>("/auth/login", data);
+    if (res.data.success && res.data.data) {
+      // Save token
+      localStorage.setItem("token", res.data.data.token);
+      // Fetch and save user profile
+      try {
+        const profileRes = await authApi.getProfile();
+        if (profileRes.data.success && profileRes.data.data) {
+          localStorage.setItem("user", JSON.stringify(profileRes.data.data));
+        }
+      } catch {
+        /* ignore error, user profile not critical for login */
+      }
+    }
+    return res;
   },
 
   /**
@@ -111,10 +125,38 @@ export const authApi = {
   },
 
   /**
-   * Logout user (remove token only, let components handle redirect)
+   * Store user profile in localStorage
+   * @param user - User profile data
+   */
+  setUser: (user: UserProfile) => {
+    localStorage.setItem("user", JSON.stringify(user));
+  },
+  /**
+   * Get user profile from localStorage
+   * @returns User profile data or null
+   */
+  getUser: (): UserProfile | null => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return null;
+    try {
+      return JSON.parse(userStr);
+    } catch {
+      return null;
+    }
+  },
+  /**
+   * Remove user profile from localStorage
+   */
+  removeUser: () => {
+    localStorage.removeItem("user");
+  },
+
+  /**
+   * Logout user (remove token and user profile)
    */
   logout: (): void => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
   },
 };
 

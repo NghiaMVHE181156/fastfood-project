@@ -16,32 +16,17 @@ export default function UserMenuPage() {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [dishDetail, setDishDetail] = useState<Dish | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  // Change cartItems type to store only dish_id and quantity
   const [cartItems, setCartItems] = useState<
-    Array<{ dish: Dish; quantity: number }>
+    Array<{ dish_id: number; quantity: number }>
   >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<UserProfile | null>(null);
 
-  // Fetch user info to check role
+  // Set user from localStorage on mount
   useEffect(() => {
-    const fetchUser = async () => {
-      if (authApi.isAuthenticated()) {
-        try {
-          const res = await authApi.getProfile();
-          if (res.data.success && res.data.data) {
-            setUser(res.data.data);
-          } else {
-            setUser(null);
-          }
-        } catch {
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-      }
-    };
-    fetchUser();
+    setUser(authApi.getUser());
   }, []);
 
   // Load cart from localStorage on mount
@@ -127,30 +112,35 @@ export default function UserMenuPage() {
       toast.error("Only users can add to cart.", { position: "top-center" });
       return;
     }
+    const exists = cartItems.find((item) => item.dish_id === dish.dish_id);
     setCartItems((prev) => {
-      const existingItem = prev.find(
-        (item) => item.dish.dish_id === dish.dish_id
-      );
+      const existingItem = prev.find((item) => item.dish_id === dish.dish_id);
       if (existingItem) {
-        toast.success("Added more to cart!", { position: "top-center" });
         return prev.map((item) =>
-          item.dish.dish_id === dish.dish_id
+          item.dish_id === dish.dish_id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      toast.success("Added to cart!", { position: "top-center" });
-      return [...prev, { dish, quantity }];
+      return [...prev, { dish_id: dish.dish_id, quantity }];
     });
+    if (exists) {
+      toast.success("Added more to cart!", { position: "top-center" });
+    } else {
+      toast.success("Added to cart!", { position: "top-center" });
+    }
   };
+
+  // Helper to get dish by id
+  const getDishById = (id: number) => dishes.find((d) => d.dish_id === id);
 
   const getTotalItems = () =>
     cartItems.reduce((total, item) => total + item.quantity, 0);
   const getTotalPrice = () =>
-    cartItems.reduce(
-      (total, item) => total + item.dish.price * item.quantity,
-      0
-    );
+    cartItems.reduce((total, item) => {
+      const dish = getDishById(item.dish_id);
+      return dish ? total + dish.price * item.quantity : total;
+    }, 0);
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -186,7 +176,12 @@ export default function UserMenuPage() {
         )}
         {/* Cart Summary */}
         <CartSummary
-          cartItems={cartItems}
+          cartItems={cartItems
+            .map((item) => ({
+              dish: getDishById(item.dish_id),
+              quantity: item.quantity,
+            }))
+            .filter((item) => item.dish)}
           formatPrice={formatPrice}
           getTotalPrice={getTotalPrice}
         />
