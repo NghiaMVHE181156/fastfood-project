@@ -25,6 +25,16 @@ export interface Shipper {
   created_at: string;
 }
 
+export interface OrderSummary {
+  order_id: number;
+  status: string;
+  total_amount: number;
+  payment_method: string;
+  created_at: string;
+  updated_at: string;
+  item_count: number;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   message: string;

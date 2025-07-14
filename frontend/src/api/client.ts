@@ -169,19 +169,6 @@ export const api = {
   },
 };
 
-// Public Menu API
-export const publicMenuApi = {
-  getCategories: () => apiClient.get("/menu/categories"),
-  getDishes: (categoryId?: number, page?: number) =>
-    apiClient.get("/menu/dishes", {
-      params: {
-        ...(categoryId ? { category: categoryId } : {}),
-        ...(page ? { page } : {}),
-      },
-    }),
-  getDishDetail: (id: number) => apiClient.get(`/menu/dishes/${id}`),
-};
-
 // Export the axios instance for advanced usage
 export default apiClient;
 

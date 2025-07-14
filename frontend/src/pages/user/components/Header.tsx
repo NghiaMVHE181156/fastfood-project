@@ -3,16 +3,24 @@ import { ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { authApi } from "@/api/auth";
 import type { UserProfile } from "@/types/auth";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
-  totalItems: number;
-  totalPrice: number;
-  formatPrice: (price: number) => string;
+  cart?: boolean;
+  totalItems?: number;
+  totalPrice?: number;
+  formatPrice?: (price: number) => string;
 }
 
-export function Header({ totalItems, totalPrice, formatPrice }: HeaderProps) {
+export function Header({
+  cart,
+  totalItems,
+  totalPrice,
+  formatPrice,
+}: HeaderProps) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -38,7 +46,7 @@ export function Header({ totalItems, totalPrice, formatPrice }: HeaderProps) {
   const handleLogout = () => {
     authApi.logout();
     setUser(null);
-    window.location.reload();
+    navigate("/");
   };
 
   const handleLogin = () => {
@@ -49,30 +57,48 @@ export function Header({ totalItems, totalPrice, formatPrice }: HeaderProps) {
     <header className="bg-white shadow-sm border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div>
+          <div onClick={() => navigate("/")} className="cursor-pointer">
             <h1 className="text-2xl font-bold text-orange-600">
               FastFood Menu
             </h1>
             <p className="text-sm text-gray-600">Today’s menu</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="flex items-center space-x-2 bg-orange-50 px-4 py-2 rounded-lg">
-                <ShoppingCart className="h-5 w-5 text-orange-600" />
-                <span className="font-semibold text-orange-600">
-                  {totalItems} items - {formatPrice(totalPrice)}
-                </span>
-              </div>
-              {totalItems > 0 && (
-                <Badge className="absolute -top-2 -right-2 bg-red-500">
-                  {totalItems}
-                </Badge>
+            {cart &&
+              typeof totalItems === "number" &&
+              typeof totalPrice === "number" &&
+              formatPrice && (
+                <div className="relative">
+                  <div className="flex items-center space-x-2 bg-orange-50 px-4 py-2 rounded-lg">
+                    <ShoppingCart className="h-5 w-5 text-orange-600" />
+                    <span className="font-semibold text-orange-600">
+                      {totalItems} items - {formatPrice(totalPrice)}
+                    </span>
+                  </div>
+                  {totalItems > 0 && (
+                    <Badge className="absolute -top-2 -right-2 bg-red-500">
+                      {totalItems}
+                    </Badge>
+                  )}
+                </div>
               )}
-            </div>
             {!loading &&
               (user ? (
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-700">
+                  {user.avatar_url && (
+                    <img
+                      src={user.avatar_url}
+                      alt="avatar"
+                      className="w-8 h-8 rounded-full object-cover border"
+                    />
+                  )}
+                  <span
+                    className="font-medium text-gray-700 cursor-pointer hover:underline"
+                    onClick={() =>
+                      user.role === "user" && navigate("/user/profile")
+                    }
+                    title="View profile"
+                  >
                     {user.full_name || user.user_name}
                   </span>
                   <button

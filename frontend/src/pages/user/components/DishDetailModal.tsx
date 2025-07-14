@@ -6,8 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogClose,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 interface DishDetailModalProps {
   dish: Dish | null;
@@ -69,12 +69,12 @@ export function DishDetailModal({
             >
               -
             </button>
-            <input
+            <Input
               type="number"
               min={1}
               value={quantity}
               onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-              className="w-12 text-center border rounded"
+              className="w-16 text-center mx-1"
             />
             <button
               className="px-2 py-1 bg-gray-200 rounded text-lg"

@@ -1,14 +1,11 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import UserMenuPage from "./pages/user/UserMenuPage";
+import UserProfilePage from "./pages/user/UserProfilePage";
 
 function App() {
   return (
@@ -20,6 +17,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route path="/" element={<UserMenuPage />} />
+          <Route path="/user/profile" element={<UserProfilePage />} />
         </Routes>
         <Toaster position="top-right" />
       </div>
