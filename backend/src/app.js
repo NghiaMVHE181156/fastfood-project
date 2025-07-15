@@ -18,6 +18,8 @@ const shipperRoutes = require("./routes/admin/shipper.route");
 const adminProfileRoutes = require("./routes/admin/profile.route");
 const shipperProfileRoutes = require("./routes/shipper/profile.route");
 const profileUploadRoutes = require("./routes/profile.route");
+const shipperOrderRoutes = require("./routes/shipper/order.route");
+const adminOrderRoutes = require("./routes/admin/order.route");
 
 // Import user routes
 const menuRoutes = require("./routes/user/menu.route");
@@ -33,8 +35,10 @@ app.use("/admin/categories", categoryRoutes);
 app.use("/admin/dishes", dishRoutes);
 app.use("/admin/shippers", shipperRoutes);
 app.use("/admin", adminProfileRoutes);
+app.use("/admin", adminOrderRoutes);
 app.use("/shipper", shipperProfileRoutes);
 app.use("/profile", profileUploadRoutes);
+app.use("/shipper", shipperOrderRoutes);
 
 // Mount user routes
 app.use("/menu", menuRoutes);

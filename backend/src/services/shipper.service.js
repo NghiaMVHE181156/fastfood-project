@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
-const { poolPromise } = require("../config/db");
+const { sql, poolPromise } = require("../config/db");
+const { getCurrentVietnamTime, fixDateTimeVN } = require("../utils/time");
 
 // Lấy tất cả shipper
 async function getAllShippers() {
@@ -100,6 +101,7 @@ async function getShipperById(shipper_id) {
   return result.recordset[0];
 }
 
+// Giữ lại các hàm CRUD shipper cho admin:
 module.exports = {
   getAllShippers,
   createShipper,

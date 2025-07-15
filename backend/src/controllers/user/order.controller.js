@@ -10,7 +10,19 @@ exports.createOrder = async (req, res) => {
       address: req.body.address,
       payment_method: req.body.payment_method,
     };
-
+    // Check if user is flagged and payment_method is COD
+    if (orderData.payment_method === "COD") {
+      const userService = require("../../services/user.service");
+      const isFlagged = await userService.isUserFlagged(userId);
+      if (isFlagged) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "You are not allowed to use COD payment method due to repeated order bombing.",
+          error: { code: "USER_FLAGGED_COD_FORBIDDEN" },
+        });
+      }
+    }
     const result = await orderService.createOrder(userId, orderData);
 
     return res.status(201).json(

@@ -70,8 +70,52 @@ const getOrderHistoryValidation = [
     .withMessage("Limit must be between 1 and 50"),
 ];
 
+const allowedStatus = ["picked_up", "on_way", "delivered", "redelivery"];
+
+const updateStatus = (req, res, next) => {
+  const { status } = req.body;
+  if (!status || !allowedStatus.includes(status)) {
+    return res.status(400).json({
+      success: false,
+      message: "Trạng thái không hợp lệ",
+      error: {
+        code: "INVALID_STATUS",
+        details: `Status phải là một trong: ${allowedStatus.join(", ")}`,
+      },
+    });
+  }
+  next();
+};
+
+const failDelivery = (req, res, next) => {
+  const { attempt, reason } = req.body;
+  if (![1, 2].includes(Number(attempt))) {
+    return res.status(400).json({
+      success: false,
+      message: "Attempt không hợp lệ",
+      error: {
+        code: "INVALID_ATTEMPT",
+        details: "Attempt chỉ nhận giá trị 1 hoặc 2",
+      },
+    });
+  }
+  if (!reason || typeof reason !== "string" || reason.trim().length < 5) {
+    return res.status(400).json({
+      success: false,
+      message: "Lý do thất bại phải có ít nhất 5 ký tự",
+      error: {
+        code: "INVALID_REASON",
+        details: "Reason required, min 5 ký tự",
+      },
+    });
+  }
+  next();
+};
+
 module.exports = {
   createOrderValidation,
   getOrderDetailValidation,
   getOrderHistoryValidation,
+  updateStatus,
+  failDelivery,
 };
