@@ -62,6 +62,8 @@ exports.updateProfile = async (req, res) => {
         0,
         10
       );
+    // Always include role
+    updatedProfile.role = "user";
     return res.json(
       successResponse("Profile updated successfully", updatedProfile)
     );

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Header } from "../user/components/Header";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -76,13 +77,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
+      <Header />
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-4">
+        <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur-sm">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
+          <CardTitle className="text-2xl font-bold text-center text-orange-600">
             Welcome back
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-gray-600">
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
@@ -128,7 +131,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="flex items-center justify-between">
-              <Button variant="link" className="px-0 text-sm" type="button">
+              <Button variant="link" className="px-0 text-sm text-orange-600 hover:text-orange-700" type="button">
                 Forgot password?
               </Button>
             </div>
@@ -136,7 +139,7 @@ export default function LoginPage() {
           <CardFooter className="flex flex-col space-y-4">
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white"
               disabled={isLoading}
               onClick={(e) => {
                 if (isLoading) {
@@ -146,11 +149,11 @@ export default function LoginPage() {
             >
               {isLoading ? "Signing In..." : "Sign In"}
             </Button>
-            <div className="text-center text-sm">
+            <div className="text-center text-sm text-gray-600">
               {"Don't have an account? "}
               <Button
                 variant="link"
-                className="px-0 font-semibold"
+                className="px-0 font-semibold text-orange-600 hover:text-orange-700"
                 type="button"
                 onClick={() => navigate("/register")}
                 disabled={isLoading}

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Header } from "../user/components/Header";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -71,13 +72,15 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
+      <Header />
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-4">
+        <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur-sm">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
+          <CardTitle className="text-2xl font-bold text-center text-orange-600">
             Create an account
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-gray-600">
             Enter your information to create your account
           </CardDescription>
         </CardHeader>
@@ -148,14 +151,14 @@ export default function RegisterPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 mt-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white" disabled={isLoading}>
               {isLoading ? "Creating Account..." : "Create Account"}
             </Button>
-            <div className="text-center text-sm">
+            <div className="text-center text-sm text-gray-600">
               {"Already have an account? "}
               <Button
                 variant="link"
-                className="px-0 font-semibold"
+                className="px-0 font-semibold text-orange-600 hover:text-orange-700"
                 type="button"
                 onClick={() => navigate("/login")}
                 disabled={isLoading}
