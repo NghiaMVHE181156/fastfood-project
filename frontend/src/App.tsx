@@ -6,6 +6,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import NotFoundPage from "./pages/user/NotFoundPage";
 import UserMenuPage from "./pages/user/UserMenuPage";
 import UserProfilePage from "./pages/user/UserProfilePage";
+import ShipperDashboardPage from "./pages/shipper/ShipperDashboardPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route path="/" element={<UserMenuPage />} />
           <Route path="/user/profile" element={<UserProfilePage />} />
+          <Route path="/shipper/dashboard" element={<ShipperDashboardPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
         <Toaster position="top-right" />
