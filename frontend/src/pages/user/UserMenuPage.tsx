@@ -1,15 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { userApi } from "@/api/userApi";
-import { CategorySection } from "./components/CategorySection";
-import { DishDetailModal } from "./components/DishDetailModal";
-import type { Category, Dish } from "@/types/index";
-import { Header } from "./components/Header";
-import { CartSummary } from "./components/CartSummary";
 import { authApi } from "@/api/auth";
-import type { UserProfile } from "@/types/auth";
-import { toast } from "sonner";
+import { userApi } from "@/api/userApi";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +9,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import Loading from "@/components/ui/loading";
+import type { UserProfile } from "@/types/auth";
+import type { Category, Dish } from "@/types/index";
+import clsx from "clsx";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { CartSummary } from "./components/CartSummary";
+import { CategorySection } from "./components/CategorySection";
+import { DishDetailModal } from "./components/DishDetailModal";
+import { Header } from "./components/Header";
 
 export default function UserMenuPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -40,6 +42,9 @@ export default function UserMenuPage() {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [orderAddress, setOrderAddress] = useState("");
   const [orderLoading, setOrderLoading] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null
+  );
 
   // Set user from localStorage on mount and sync with logout
   useEffect(() => {
@@ -93,6 +98,13 @@ export default function UserMenuPage() {
     };
     fetchDishes();
   }, []);
+
+  // Khi fetch xong categories, mặc định chọn category đầu tiên
+  useEffect(() => {
+    if (categories.length > 0 && selectedCategoryId === null) {
+      setSelectedCategoryId(categories[0].category_id);
+    }
+  }, [categories]);
 
   const handleViewDetail = async (dishId: number) => {
     setLoading(true);
@@ -193,21 +205,51 @@ export default function UserMenuPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
-          <div className="text-center py-12">Đang tải...</div>
+          <div className="py-12 flex justify-center">
+            <Loading text="Đang tải dữ liệu thực đơn..." />
+          </div>
         ) : error ? (
           <div className="text-center text-red-500 py-12">{error}</div>
         ) : (
-          <div className="space-y-8">
-            {categories.map((category) => (
-              <CategorySection
-                key={category.category_id}
-                category={category}
-                dishes={dishes}
-                onViewDetail={handleViewDetail}
-                onAddToCart={handleAddToCart}
-              />
-            ))}
-          </div>
+          <>
+            {/* Category tags */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              {categories.map((category) => (
+                <button
+                  key={category.category_id}
+                  className={clsx(
+                    "px-4 py-2 rounded-full border text-sm font-medium transition",
+                    selectedCategoryId === category.category_id
+                      ? "bg-orange-600 text-white border-orange-600 shadow"
+                      : "bg-white text-orange-600 border-orange-200 hover:bg-orange-50"
+                  )}
+                  onClick={() => setSelectedCategoryId(category.category_id)}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+            {/* Dishes of selected category */}
+            {selectedCategoryId &&
+              (dishes.some(
+                (dish) => dish.category_id === selectedCategoryId
+              ) ? (
+                <CategorySection
+                  category={
+                    categories.find(
+                      (c) => c.category_id === selectedCategoryId
+                    )!
+                  }
+                  dishes={dishes}
+                  onViewDetail={handleViewDetail}
+                  onAddToCart={handleAddToCart}
+                />
+              ) : (
+                <div className="w-full py-24 flex flex-col items-center justify-center text-gray-400 text-lg font-semibold">
+                  Hiện tại chưa có món ăn nào trong danh mục này.
+                </div>
+              ))}
+          </>
         )}
         {/* Cart Summary */}
         {user && authApi.isAuthenticated() && user.role === "user" && (

@@ -1,8 +1,8 @@
+import { authApi } from "@/api/auth";
 import { Badge } from "@/components/ui/badge";
+import type { UserProfile } from "@/types/auth";
 import { ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
-import { authApi } from "@/api/auth";
-import type { UserProfile } from "@/types/auth";
 import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
@@ -63,9 +63,9 @@ export function Header({
         <div className="flex items-center justify-between h-16">
           <div onClick={() => navigate("/")} className="cursor-pointer">
             <h1 className="text-2xl font-bold text-orange-600">
-              FastFood Menu
+              Menu Thức Ăn Nhanh
             </h1>
-            <p className="text-sm text-gray-600">Today’s menu</p>
+            <p className="text-sm text-gray-600">Thực đơn hôm nay</p>
           </div>
           <div className="flex items-center gap-4">
             {user &&
@@ -79,7 +79,7 @@ export function Header({
                   <div className="flex items-center space-x-2 bg-orange-50 px-4 py-2 rounded-lg">
                     <ShoppingCart className="h-5 w-5 text-orange-600" />
                     <span className="font-semibold text-orange-600">
-                      {totalItems} items - {formatPrice(totalPrice)}
+                      {totalItems} món - {formatPrice(totalPrice)}
                     </span>
                   </div>
                   {totalItems > 0 && (
@@ -104,7 +104,7 @@ export function Header({
                     onClick={() =>
                       user.role === "user" && navigate("/user/profile")
                     }
-                    title="View profile"
+                    title="Xem hồ sơ"
                   >
                     {user.full_name || user.user_name}
                   </span>
@@ -112,7 +112,7 @@ export function Header({
                     className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm"
                     onClick={handleLogout}
                   >
-                    Logout
+                    Đăng xuất
                   </button>
                 </div>
               ) : (
@@ -121,13 +121,13 @@ export function Header({
                     className="px-3 py-1 bg-orange-600 text-white rounded hover:bg-orange-700 text-sm"
                     onClick={handleLogin}
                   >
-                    Login
+                    Đăng nhập
                   </button>
                   <button
                     className="px-3 py-1 bg-white text-orange-600 border border-orange-600 rounded hover:bg-orange-50 text-sm"
                     onClick={handleSignUp}
                   >
-                    Sign up
+                    Đăng ký
                   </button>
                 </div>
               ))}

@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { authApi } from "@/api/auth";
-import type { RegisterData } from "@/types/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { RegisterData } from "@/types/auth";
 import { Header } from "../user/components/Header";
 
 export default function RegisterPage() {
@@ -64,7 +64,7 @@ export default function RegisterPage() {
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Registration failed. Please try again.");
+        setError("Đăng ký thất bại. Vui lòng thử lại.");
       }
     } finally {
       setIsLoading(false);
@@ -78,10 +78,10 @@ export default function RegisterPage() {
         <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center text-orange-600">
-              Create an account
+              Tạo tài khoản
             </CardTitle>
             <CardDescription className="text-center text-gray-600">
-              Enter your information to create your account
+              Nhập thông tin của bạn để tạo tài khoản
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit} noValidate>
@@ -97,7 +97,7 @@ export default function RegisterPage() {
                 </div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="user_name">Username</Label>
+                <Label htmlFor="user_name">Tên đăng nhập</Label>
                 <Input
                   id="user_name"
                   name="user_name"
@@ -107,7 +107,7 @@ export default function RegisterPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="full_name">Full Name</Label>
+                <Label htmlFor="full_name">Họ và tên</Label>
                 <Input
                   id="full_name"
                   name="full_name"
@@ -128,7 +128,7 @@ export default function RegisterPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
+                <Label htmlFor="phone">Số điện thoại</Label>
                 <Input
                   id="phone"
                   name="phone"
@@ -139,12 +139,12 @@ export default function RegisterPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Mật khẩu</Label>
                 <Input
                   id="password"
                   name="password"
                   type="password"
-                  placeholder="Create a password"
+                  placeholder="Tạo mật khẩu"
                   required
                   disabled={isLoading}
                 />
@@ -156,10 +156,10 @@ export default function RegisterPage() {
                 className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                 disabled={isLoading}
               >
-                {isLoading ? "Creating Account..." : "Create Account"}
+                {isLoading ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
               </Button>
               <div className="text-center text-sm text-gray-600">
-                {"Already have an account? "}
+                {"Đã có tài khoản? "}
                 <Button
                   variant="link"
                   className="px-0 font-semibold text-orange-600 hover:text-orange-700"
@@ -167,7 +167,7 @@ export default function RegisterPage() {
                   onClick={() => navigate("/login")}
                   disabled={isLoading}
                 >
-                  Sign in
+                  Đăng nhập
                 </Button>
               </div>
             </CardFooter>

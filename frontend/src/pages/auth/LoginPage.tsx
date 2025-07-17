@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { authApi } from "@/api/auth";
-import type { LoginData } from "@/types/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { LoginData } from "@/types/auth";
 import { Header } from "../user/components/Header";
 
 export default function LoginPage() {
@@ -69,7 +69,7 @@ export default function LoginPage() {
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Login failed. Please try again.");
+        setError("Đăng nhập thất bại. Vui lòng thử lại.");
       }
     } finally {
       setIsLoading(false);
@@ -83,10 +83,10 @@ export default function LoginPage() {
         <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center text-orange-600">
-              Welcome back
+              Chào mừng trở lại
             </CardTitle>
             <CardDescription className="text-center text-gray-600">
-              Enter your credentials to access your account
+              Nhập thông tin đăng nhập để truy cập tài khoản của bạn
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit} noValidate>
@@ -97,7 +97,7 @@ export default function LoginPage() {
                 </div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Tên đăng nhập</Label>
                 <Input
                   id="username"
                   name="username"
@@ -114,12 +114,12 @@ export default function LoginPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Mật khẩu</Label>
                 <Input
                   id="password"
                   name="password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Nhập mật khẩu của bạn"
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
@@ -136,7 +136,7 @@ export default function LoginPage() {
                   className="px-0 text-sm text-orange-600 hover:text-orange-700"
                   type="button"
                 >
-                  Forgot password?
+                  Quên mật khẩu?
                 </Button>
               </div>
             </CardContent>
@@ -151,10 +151,10 @@ export default function LoginPage() {
                   }
                 }}
               >
-                {isLoading ? "Signing In..." : "Sign In"}
+                {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
               </Button>
               <div className="text-center text-sm text-gray-600">
-                {"Don't have an account? "}
+                {"Chưa có tài khoản? "}
                 <Button
                   variant="link"
                   className="px-0 font-semibold text-orange-600 hover:text-orange-700"
@@ -162,7 +162,7 @@ export default function LoginPage() {
                   onClick={() => navigate("/register")}
                   disabled={isLoading}
                 >
-                  Sign up
+                  Đăng ký
                 </Button>
               </div>
             </CardFooter>
