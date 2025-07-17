@@ -8,6 +8,7 @@ import { AdminSidebar } from "./components/AdminSidebar";
 import { CategoriesManagement } from "./components/CategoriesManagement";
 import { DishesManagement } from "./components/DishesManagement";
 import { ShippersManagement } from "./components/ShipperManagement";
+import { OrderManagement } from "./components/OrderManagement";
 import {
   SidebarProvider,
   SidebarInset,
@@ -53,6 +54,8 @@ export default function AdminDashboardPage() {
         return <DishesManagement />;
       case "shippers":
         return <ShippersManagement />;
+      case "orders":
+        return <OrderManagement />;
       default:
         return <CategoriesManagement />;
     }

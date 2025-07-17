@@ -76,99 +76,104 @@ export default function RegisterPage() {
       <Header />
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-4">
         <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur-sm">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center text-orange-600">
-            Create an account
-          </CardTitle>
-          <CardDescription className="text-center text-gray-600">
-            Enter your information to create your account
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit} noValidate>
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                {error}
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center text-orange-600">
+              Create an account
+            </CardTitle>
+            <CardDescription className="text-center text-gray-600">
+              Enter your information to create your account
+            </CardDescription>
+          </CardHeader>
+          <form onSubmit={handleSubmit} noValidate>
+            <CardContent className="space-y-4">
+              {error && (
+                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
+                  {success}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="user_name">Username</Label>
+                <Input
+                  id="user_name"
+                  name="user_name"
+                  placeholder="user123"
+                  required
+                  disabled={isLoading}
+                />
               </div>
-            )}
-            {success && (
-              <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
-                {success}
+              <div className="space-y-2">
+                <Label htmlFor="full_name">Full Name</Label>
+                <Input
+                  id="full_name"
+                  name="full_name"
+                  placeholder="Nguyễn Văn A"
+                  required
+                  disabled={isLoading}
+                />
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="user_name">Username</Label>
-              <Input
-                id="user_name"
-                name="user_name"
-                placeholder="user123"
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="full_name">Full Name</Label>
-              <Input
-                id="full_name"
-                name="full_name"
-                placeholder="Nguyễn Văn A"
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="user@example.com"
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                placeholder="909123456"
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Create a password"
-                required
-                disabled={isLoading}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4 mt-4">
-            <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white" disabled={isLoading}>
-              {isLoading ? "Creating Account..." : "Create Account"}
-            </Button>
-            <div className="text-center text-sm text-gray-600">
-              {"Already have an account? "}
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="user@example.com"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  placeholder="909123456"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Create a password"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4 mt-4">
               <Button
-                variant="link"
-                className="px-0 font-semibold text-orange-600 hover:text-orange-700"
-                type="button"
-                onClick={() => navigate("/login")}
+                type="submit"
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                 disabled={isLoading}
               >
-                Sign in
+                {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
+              <div className="text-center text-sm text-gray-600">
+                {"Already have an account? "}
+                <Button
+                  variant="link"
+                  className="px-0 font-semibold text-orange-600 hover:text-orange-700"
+                  type="button"
+                  onClick={() => navigate("/login")}
+                  disabled={isLoading}
+                >
+                  Sign in
+                </Button>
+              </div>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 }

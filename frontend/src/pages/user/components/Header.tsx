@@ -53,6 +53,10 @@ export function Header({
     window.location.href = "/login";
   };
 
+  const handleSignUp = () => {
+    window.location.href = "/register";
+  };
+
   return (
     <header className="bg-white shadow-sm border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,7 +68,10 @@ export function Header({
             <p className="text-sm text-gray-600">Today’s menu</p>
           </div>
           <div className="flex items-center gap-4">
-            {cart &&
+            {user &&
+              authApi.isAuthenticated() &&
+              user.role === "user" &&
+              cart &&
               typeof totalItems === "number" &&
               typeof totalPrice === "number" &&
               formatPrice && (
@@ -109,12 +116,20 @@ export function Header({
                   </button>
                 </div>
               ) : (
-                <button
-                  className="px-3 py-1 bg-orange-600 text-white rounded hover:bg-orange-700 text-sm"
-                  onClick={handleLogin}
-                >
-                  Login
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    className="px-3 py-1 bg-orange-600 text-white rounded hover:bg-orange-700 text-sm"
+                    onClick={handleLogin}
+                  >
+                    Login
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-white text-orange-600 border border-orange-600 rounded hover:bg-orange-50 text-sm"
+                    onClick={handleSignUp}
+                  >
+                    Sign up
+                  </button>
+                </div>
               ))}
           </div>
         </div>

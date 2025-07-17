@@ -81,89 +81,94 @@ export default function LoginPage() {
       <Header />
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-4">
         <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur-sm">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center text-orange-600">
-            Welcome back
-          </CardTitle>
-          <CardDescription className="text-center text-gray-600">
-            Enter your credentials to access your account
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit} noValidate>
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                {error}
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center text-orange-600">
+              Welcome back
+            </CardTitle>
+            <CardDescription className="text-center text-gray-600">
+              Enter your credentials to access your account
+            </CardDescription>
+          </CardHeader>
+          <form onSubmit={handleSubmit} noValidate>
+            <CardContent className="space-y-4">
+              {error && (
+                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                  {error}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="user123"
+                  required
+                  disabled={isLoading}
+                  autoComplete="username"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && isLoading) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                name="username"
-                type="text"
-                placeholder="user123"
-                required
-                disabled={isLoading}
-                autoComplete="username"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && isLoading) {
-                    e.preventDefault();
-                  }
-                }}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Enter your password"
-                required
-                disabled={isLoading}
-                autoComplete="current-password"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && isLoading) {
-                    e.preventDefault();
-                  }
-                }}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <Button variant="link" className="px-0 text-sm text-orange-600 hover:text-orange-700" type="button">
-                Forgot password?
-              </Button>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button
-              type="submit"
-              className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-              disabled={isLoading}
-              onClick={(e) => {
-                if (isLoading) {
-                  e.preventDefault();
-                }
-              }}
-            >
-              {isLoading ? "Signing In..." : "Sign In"}
-            </Button>
-            <div className="text-center text-sm text-gray-600">
-              {"Don't have an account? "}
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  required
+                  disabled={isLoading}
+                  autoComplete="current-password"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && isLoading) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="link"
+                  className="px-0 text-sm text-orange-600 hover:text-orange-700"
+                  type="button"
+                >
+                  Forgot password?
+                </Button>
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4">
               <Button
-                variant="link"
-                className="px-0 font-semibold text-orange-600 hover:text-orange-700"
-                type="button"
-                onClick={() => navigate("/register")}
+                type="submit"
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                 disabled={isLoading}
+                onClick={(e) => {
+                  if (isLoading) {
+                    e.preventDefault();
+                  }
+                }}
               >
-                Sign up
+                {isLoading ? "Signing In..." : "Sign In"}
               </Button>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
+              <div className="text-center text-sm text-gray-600">
+                {"Don't have an account? "}
+                <Button
+                  variant="link"
+                  className="px-0 font-semibold text-orange-600 hover:text-orange-700"
+                  type="button"
+                  onClick={() => navigate("/register")}
+                  disabled={isLoading}
+                >
+                  Sign up
+                </Button>
+              </div>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 }

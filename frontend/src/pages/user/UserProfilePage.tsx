@@ -29,6 +29,10 @@ export default function UserProfilePage() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [detailedOrders, setDetailedOrders] = useState<Map<number, Order>>(
+    new Map()
+  );
+  const [loadingDetails, setLoadingDetails] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const u = authApi.getUser();
@@ -106,6 +110,45 @@ export default function UserProfilePage() {
       });
     }
     setEdit(false);
+  };
+
+  const loadOrderDetails = async (orderId: number) => {
+    // Check if we already have the details
+    if (detailedOrders.has(orderId)) {
+      return;
+    }
+
+    // Check if we're already loading this order
+    if (loadingDetails.has(orderId)) {
+      return;
+    }
+
+    setLoadingDetails((prev) => new Set(prev).add(orderId));
+
+    try {
+      const res = await userApi.getOrderDetail(orderId);
+      if (res.data.success && res.data.data) {
+        setDetailedOrders((prev) => new Map(prev).set(orderId, res.data.data));
+      } else {
+        toast.error("Failed to load order details");
+      }
+    } catch {
+      toast.error("Failed to load order details");
+    } finally {
+      setLoadingDetails((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(orderId);
+        return newSet;
+      });
+    }
+  };
+
+  const getOrderWithDetails = (order: Order): Order => {
+    const detailedOrder = detailedOrders.get(order.order_id);
+    if (detailedOrder) {
+      return detailedOrder;
+    }
+    return order;
   };
 
   const filteredOrders = orders.filter((order) => {
@@ -286,7 +329,12 @@ export default function UserProfilePage() {
             </Card>
           ) : filteredOrders.length > 0 ? (
             filteredOrders.map((order) => (
-              <OrderCard key={order.order_id} order={order} />
+              <OrderCard
+                key={order.order_id}
+                order={getOrderWithDetails(order)}
+                onExpand={() => loadOrderDetails(order.order_id)}
+                isLoadingDetails={loadingDetails.has(order.order_id)}
+              />
             ))
           ) : (
             <Card>

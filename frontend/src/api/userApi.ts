@@ -1,8 +1,9 @@
 import { api } from "./client";
 import type { AxiosResponse } from "axios";
-import type { ApiResponse } from "@/types/index";
+import type { ApiResponse, OrderSummary } from "@/types/index";
 import type { Dish, Category } from "@/types/index";
-import type { UserProfile } from "@/types/user";
+import type { UserProfile } from "@/types/auth";
+import type { Order } from "@/types/order";
 
 export const userApi = {
   getCategories: (): Promise<AxiosResponse<ApiResponse<Category[]>>> =>
@@ -15,7 +16,20 @@ export const userApi = {
     items: Array<{ dish_id: number; quantity: number }>;
     address: string;
     payment_method: string;
-  }): Promise<AxiosResponse<ApiResponse<any>>> => api.post("/orders", payload),
+  }): Promise<
+    AxiosResponse<
+      ApiResponse<{
+        order_id: number;
+        total_amount: number;
+        items: Array<{
+          dish_id: number;
+          quantity: number;
+          unit_price: number;
+          name: string;
+        }>;
+      }>
+    >
+  > => api.post("/orders", payload),
   updateProfile: (
     data: Partial<UserProfile>
   ): Promise<AxiosResponse<ApiResponse<UserProfile>>> =>
@@ -23,6 +37,21 @@ export const userApi = {
   getOrderHistory: (
     page = 1,
     limit = 10
-  ): Promise<AxiosResponse<ApiResponse<any>>> =>
-    api.get(`/orders/history?page=${page}&limit=${limit}`),
+  ): Promise<
+    AxiosResponse<
+      ApiResponse<{
+        orders: OrderSummary[];
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          totalPages: number;
+        };
+      }>
+    >
+  > => api.get(`/orders/history?page=${page}&limit=${limit}`),
+  getOrderDetail: (
+    orderId: number
+  ): Promise<AxiosResponse<ApiResponse<Order>>> =>
+    api.get(`/orders/${orderId}`),
 };

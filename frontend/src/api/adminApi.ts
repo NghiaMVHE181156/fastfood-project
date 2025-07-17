@@ -1,5 +1,10 @@
 import apiClient from "@/lib/api-client";
 import type { Category, Dish, Shipper, ApiResponse } from "@/types";
+import type {
+  AdminOrderResponse,
+  ConfirmBombResponse,
+  UnflagUserResponse,
+} from "@/types/admin-order";
 import type { AxiosResponse } from "axios";
 import { toast } from "sonner";
 
@@ -251,6 +256,71 @@ export const adminApi = {
         });
       } else {
         toast.error(res.data.message || "Xoá shipper thất bại", {
+          position: "top-center",
+        });
+      }
+      return res;
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Có lỗi xảy ra";
+      toast.error(errorMsg, { position: "top-center" });
+      throw err;
+    }
+  },
+
+  // Orders
+  getAllOrders: async (
+    bomb?: boolean
+  ): Promise<AxiosResponse<AdminOrderResponse>> => {
+    try {
+      const params = bomb !== undefined ? { bomb: bomb.toString() } : {};
+      const res = await apiClient.get<AdminOrderResponse>("/admin/orders", {
+        params,
+      });
+      return res;
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Có lỗi xảy ra";
+      toast.error(errorMsg, { position: "top-center" });
+      throw err;
+    }
+  },
+
+  confirmBombOrder: async (
+    orderId: number
+  ): Promise<AxiosResponse<ConfirmBombResponse>> => {
+    try {
+      const res = await apiClient.patch<ConfirmBombResponse>(
+        `/admin/orders/${orderId}/confirm-bomb`
+      );
+      if (res.data.success) {
+        toast.success(res.data.message || "Xác nhận bom đơn thành công", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(res.data.message || "Xác nhận bom đơn thất bại", {
+          position: "top-center",
+        });
+      }
+      return res;
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Có lỗi xảy ra";
+      toast.error(errorMsg, { position: "top-center" });
+      throw err;
+    }
+  },
+
+  unflagUser: async (
+    userId: number
+  ): Promise<AxiosResponse<UnflagUserResponse>> => {
+    try {
+      const res = await apiClient.patch<UnflagUserResponse>(
+        `/admin/orders/${userId}/unflag`
+      );
+      if (res.data.success) {
+        toast.success(res.data.message || "Gỡ cờ user thành công", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(res.data.message || "Gỡ cờ user thất bại", {
           position: "top-center",
         });
       }

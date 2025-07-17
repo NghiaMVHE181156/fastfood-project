@@ -41,15 +41,24 @@ export default function UserMenuPage() {
   const [orderAddress, setOrderAddress] = useState("");
   const [orderLoading, setOrderLoading] = useState(false);
 
-  // Set user from localStorage on mount
+  // Set user from localStorage on mount and sync with logout
   useEffect(() => {
-    setUser(authApi.getUser());
+    const interval = setInterval(() => {
+      const currentUser = authApi.getUser();
+      setUser(currentUser);
+      if (!currentUser || !authApi.isAuthenticated()) {
+        setCartItems([]);
+      }
+    }, 500);
+    return () => clearInterval(interval);
   }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems]);
+    if (user && authApi.isAuthenticated()) {
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    }
+  }, [cartItems, user]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -201,31 +210,33 @@ export default function UserMenuPage() {
           </div>
         )}
         {/* Cart Summary */}
-        <CartSummary
-          cartItems={cartItems
-            .map((item) => ({
-              dish: getDishById(item.dish_id),
-              quantity: item.quantity,
-            }))
-            .filter((item) => item.dish)}
-          formatPrice={formatPrice}
-          getTotalPrice={getTotalPrice}
-          onViewDetail={handleViewDetail}
-          onUpdateQuantity={(dishId, quantity) => {
-            if (quantity < 1) return;
-            setCartItems((prev) =>
-              prev.map((item) =>
-                item.dish_id === dishId ? { ...item, quantity } : item
-              )
-            );
-          }}
-          onRemoveItem={(dishId) => {
-            setCartItems((prev) =>
-              prev.filter((item) => item.dish_id !== dishId)
-            );
-          }}
-          onOrder={handleOrder}
-        />
+        {user && authApi.isAuthenticated() && user.role === "user" && (
+          <CartSummary
+            cartItems={cartItems
+              .map((item) => ({
+                dish: getDishById(item.dish_id),
+                quantity: item.quantity,
+              }))
+              .filter((item) => item.dish)}
+            formatPrice={formatPrice}
+            getTotalPrice={getTotalPrice}
+            onViewDetail={handleViewDetail}
+            onUpdateQuantity={(dishId, quantity) => {
+              if (quantity < 1) return;
+              setCartItems((prev) =>
+                prev.map((item) =>
+                  item.dish_id === dishId ? { ...item, quantity } : item
+                )
+              );
+            }}
+            onRemoveItem={(dishId) => {
+              setCartItems((prev) =>
+                prev.filter((item) => item.dish_id !== dishId)
+              );
+            }}
+            onOrder={handleOrder}
+          />
+        )}
       </main>
       {/* Dish Detail Modal */}
       <DishDetailModal

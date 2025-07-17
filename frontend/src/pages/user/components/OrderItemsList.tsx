@@ -52,10 +52,10 @@ export function OrderItemsList({ items }: OrderItemsListProps) {
               </div>
               <div className="text-right">
                 <div className="font-semibold">
-                  {formatPrice(item.price * item.quantity)}
+                  {formatPrice(item.unit_price * item.quantity)}
                 </div>
                 <div className="text-sm text-gray-600">
-                  {formatPrice(item.price)} each
+                  {formatPrice(item.unit_price)} each
                 </div>
               </div>
             </div>

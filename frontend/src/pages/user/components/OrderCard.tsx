@@ -10,6 +10,7 @@ import {
   Calendar,
   CreditCard,
   Package,
+  Loader2,
 } from "lucide-react";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { OrderItemsList } from "./OrderItemsList";
@@ -18,9 +19,15 @@ import type { Order } from "../../../types/order";
 
 interface OrderCardProps {
   order: Order;
+  onExpand?: () => void;
+  isLoadingDetails?: boolean;
 }
 
-export function OrderCard({ order }: OrderCardProps) {
+export function OrderCard({
+  order,
+  onExpand,
+  isLoadingDetails = false,
+}: OrderCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const formatPrice = (price: number) => {
@@ -51,6 +58,13 @@ export function OrderCard({ order }: OrderCardProps) {
       default:
         return method;
     }
+  };
+
+  const handleExpand = () => {
+    if (!isExpanded && onExpand) {
+      onExpand();
+    }
+    setIsExpanded(!isExpanded);
   };
 
   return (
@@ -94,9 +108,15 @@ export function OrderCard({ order }: OrderCardProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={handleExpand}
+            disabled={isLoadingDetails}
           >
-            {isExpanded ? (
+            {isLoadingDetails ? (
+              <>
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                Loading...
+              </>
+            ) : isExpanded ? (
               <>
                 Collapse <ChevronUp className="ml-1 h-4 w-4" />
               </>
@@ -110,8 +130,17 @@ export function OrderCard({ order }: OrderCardProps) {
 
         {isExpanded && (
           <div className="mt-6 space-y-6">
-            <OrderItemsList items={order.items} />
-            <OrderTimeline deliveryLogs={order.delivery_logs} />
+            {isLoadingDetails ? (
+              <div className="text-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-gray-400" />
+                <p className="text-gray-600">Loading order details...</p>
+              </div>
+            ) : (
+              <>
+                <OrderItemsList items={order.items} />
+                <OrderTimeline deliveryLogs={order.delivery_logs} />
+              </>
+            )}
           </div>
         )}
       </CardContent>

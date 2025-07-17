@@ -1,6 +1,6 @@
 "use client";
 
-import { Package, Users, Utensils, Truck } from "lucide-react";
+import { Package, Users, Utensils, Truck, ShoppingCart } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -28,6 +28,11 @@ const menuItems = [
     title: "Shippers",
     icon: Truck,
     id: "shippers",
+  },
+  {
+    title: "Orders",
+    icon: ShoppingCart,
+    id: "orders",
   },
 ];
 
