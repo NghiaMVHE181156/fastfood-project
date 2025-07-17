@@ -83,7 +83,8 @@ exports.getOrderHistory = async (req, res) => {
 // Lấy chi tiết đơn hàng
 exports.getOrderDetail = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const role = req.user.role;
+    const id = req.user.id;
     const orderId = parseInt(req.params.id);
 
     if (!orderId || isNaN(orderId)) {
@@ -92,7 +93,8 @@ exports.getOrderDetail = async (req, res) => {
         .json(errorResponse("Invalid order ID", "INVALID_ORDER_ID"));
     }
 
-    const order = await orderService.getOrderDetail(orderId, userId);
+    // Truyền role và id vào service
+    const order = await orderService.getOrderDetail(orderId, role, id);
 
     if (!order) {
       return res
@@ -113,6 +115,34 @@ exports.getOrderDetail = async (req, res) => {
       .json(
         errorResponse(
           "Failed to retrieve order details",
+          "INTERNAL_SERVER_ERROR",
+          err.message
+        )
+      );
+  }
+};
+
+// Lấy danh sách đơn hàng shipper đã nhận
+exports.getOrdersByShipperId = async (req, res) => {
+  try {
+    const shipperId = req.user.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const result = await orderService.getOrdersByShipperId(
+      shipperId,
+      page,
+      limit
+    );
+    return res
+      .status(200)
+      .json(successResponse("Shipper orders retrieved successfully", result));
+  } catch (err) {
+    console.error("Get shipper orders error:", err);
+    return res
+      .status(500)
+      .json(
+        errorResponse(
+          "Failed to retrieve shipper orders",
           "INTERNAL_SERVER_ERROR",
           err.message
         )

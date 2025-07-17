@@ -154,16 +154,41 @@ exports.getOrderHistory = async (userId, page = 1, limit = 10) => {
   };
 };
 
-exports.getOrderDetail = async (orderId, userId) => {
+exports.getOrderDetail = async (orderId, role, id) => {
   const pool = await poolPromise;
-  // Kiểm tra đơn hàng có thuộc user không
-  const orderResult = await pool
-    .request()
-    .input("order_id", sql.Int, orderId)
-    .input("user_id", sql.Int, userId).query(`
-      SELECT * FROM [Order] WHERE order_id = @order_id AND user_id = @user_id
-    `);
-  if (orderResult.recordset.length === 0) {
+  let orderResult;
+  if (role === "user") {
+    // Kiểm tra đơn hàng có thuộc user không
+    orderResult = await pool
+      .request()
+      .input("order_id", sql.Int, orderId)
+      .input("user_id", sql.Int, id).query(`
+        SELECT * FROM [Order] WHERE order_id = @order_id AND user_id = @user_id
+      `);
+    if (orderResult.recordset.length === 0) {
+      return null;
+    }
+  } else if (role === "shipper") {
+    // Kiểm tra đơn hàng có thuộc shipper không (Shipping)
+    const shippingResult = await pool
+      .request()
+      .input("order_id", sql.Int, orderId)
+      .input("shipper_id", sql.Int, id).query(`
+        SELECT * FROM Shipping WHERE order_id = @order_id AND shipper_id = @shipper_id
+      `);
+    if (shippingResult.recordset.length === 0) {
+      return null;
+    }
+    // Lấy order
+    orderResult = await pool
+      .request()
+      .input("order_id", sql.Int, orderId)
+      .query(`SELECT * FROM [Order] WHERE order_id = @order_id`);
+    if (orderResult.recordset.length === 0) {
+      return null;
+    }
+  } else {
+    // Không đúng quyền
     return null;
   }
   const order = orderResult.recordset[0];
@@ -247,5 +272,63 @@ exports.getOrderDetail = async (orderId, userId) => {
     items,
     delivery_logs,
     shipper,
+  };
+};
+
+exports.getOrdersByShipperId = async (shipperId, page = 1, limit = 10) => {
+  const pool = await poolPromise;
+  const offset = (page - 1) * limit;
+  // Lấy tổng số đơn hàng của shipper
+  const totalResult = await pool
+    .request()
+    .input("shipper_id", sql.Int, shipperId)
+    .query(
+      "SELECT COUNT(*) AS total FROM Shipping WHERE shipper_id = @shipper_id"
+    );
+  const total = totalResult.recordset[0].total;
+  if (total === 0) {
+    return {
+      orders: [],
+      pagination: {
+        page,
+        limit,
+        total: 0,
+        totalPages: 0,
+      },
+    };
+  }
+  // Lấy danh sách đơn hàng phân trang
+  const ordersResult = await pool
+    .request()
+    .input("shipper_id", sql.Int, shipperId)
+    .input("limit", sql.Int, limit)
+    .input("offset", sql.Int, offset).query(`
+      SELECT o.order_id, o.total_amount, o.payment_method, o.created_at, o.updated_at, o.address,
+        s.current_status AS status,
+        (SELECT COUNT(*) FROM OrderItem oi WHERE oi.order_id = o.order_id) AS item_count
+      FROM Shipping s
+      JOIN [Order] o ON s.order_id = o.order_id
+      WHERE s.shipper_id = @shipper_id
+      ORDER BY o.created_at DESC
+      OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
+    `);
+  const orders = ordersResult.recordset.map((row) => ({
+    order_id: row.order_id,
+    status: row.status || "preparing",
+    total_amount: row.total_amount,
+    payment_method: row.payment_method,
+    address: row.address,
+    updated_at: toVietnamTimeString(row.updated_at),
+    created_at: toVietnamTimeString(row.created_at),
+    item_count: row.item_count,
+  }));
+  return {
+    orders,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
   };
 };

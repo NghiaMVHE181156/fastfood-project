@@ -33,12 +33,25 @@ const requireRole = (requiredRole) => {
         error: { code: "UNAUTHORIZED" },
       });
     }
-    if (req.user.role !== requiredRole) {
-      return res.status(403).json({
-        success: false,
-        message: `Access denied - ${requiredRole} role required`,
-        error: { code: "FORBIDDEN" },
-      });
+    // Cho phép truyền vào 1 role (string) hoặc nhiều role (array)
+    if (Array.isArray(requiredRole)) {
+      if (!requiredRole.includes(req.user.role)) {
+        return res.status(403).json({
+          success: false,
+          message: `Access denied - one of [${requiredRole.join(
+            ", "
+          )}] role required`,
+          error: { code: "FORBIDDEN" },
+        });
+      }
+    } else {
+      if (req.user.role !== requiredRole) {
+        return res.status(403).json({
+          success: false,
+          message: `Access denied - ${requiredRole} role required`,
+          error: { code: "FORBIDDEN" },
+        });
+      }
     }
     next();
   };

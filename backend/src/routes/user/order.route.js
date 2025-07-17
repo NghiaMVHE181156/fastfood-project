@@ -362,6 +362,46 @@ router.get(
 
 /**
  * @swagger
+ * /orders/shipper:
+ *   get:
+ *     summary: Lấy danh sách đơn hàng shipper đã nhận
+ *     tags: [User - Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách đơn hàng thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Orders retrieved successfully"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/OrderSummary'
+ *       401:
+ *         description: Không có token xác thực hoặc token không hợp lệ
+ *       403:
+ *         description: Không có quyền truy cập (role không phải shipper)
+ *       500:
+ *         description: Lỗi server
+ */
+router.get(
+  "/shipper",
+  authMiddleware,
+  requireRole(["shipper"]),
+  orderController.getOrdersByShipperId
+);
+
+/**
+ * @swagger
  * /orders/{id}:
  *   get:
  *     summary: Lấy chi tiết đơn hàng
@@ -404,7 +444,7 @@ router.get(
 router.get(
   "/:id",
   authMiddleware,
-  requireRole("user"),
+  requireRole(["user", "shipper"]),
   getOrderDetailValidation,
   handleValidationErrors,
   orderController.getOrderDetail
