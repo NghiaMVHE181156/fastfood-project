@@ -355,7 +355,7 @@ exports.updateOrderFailed2 = async (orderId, shipperId, note) => {
     await transaction
       .request()
       .input("order_id", sql.Int, orderId)
-      .input("status", sql.VarChar(20), "failed")
+      .input("status", sql.VarChar(20), "bomb")
       .input("updated_at", sql.DateTime, getCurrentVietnamTime())
       .query(
         `UPDATE Shipping SET current_status = @status, updated_at = @updated_at WHERE order_id = @order_id`
