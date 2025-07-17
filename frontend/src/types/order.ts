@@ -26,4 +26,6 @@ export interface Order {
   updated_at: string;
   items: OrderItem[];
   delivery_logs: DeliveryLog[];
+  address?: string;
+  user_name?: string;
 }

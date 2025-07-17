@@ -1,23 +1,33 @@
 import { useState } from "react";
-import type { AvailableOrder } from "@/api/shipperApi";
-import { Button } from "@/components/ui/button";
+import type { AssignedOrder } from "@/api/shipperApi";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, CreditCard, Package } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-interface AvailableOrdersProps {
-  orders: AvailableOrder[];
+interface AssignedOrdersProps {
+  orders: AssignedOrder[];
   loading: boolean;
-  onAssign: (orderId: number) => void;
   onViewDetail: (orderId: number) => void;
+  onOnWay: (orderId: number) => void;
+  onDelivered: (orderId: number) => void;
+  onFailed1: (orderId: number) => void;
+  onRedelivery: (orderId: number) => void;
+  onRedelivered: (orderId: number) => void;
+  onFailed2: (orderId: number) => void;
 }
 
-export function AvailableOrders({
+export function AssignedOrders({
   orders,
   loading,
-  onAssign,
   onViewDetail,
-}: AvailableOrdersProps) {
+  onOnWay,
+  onDelivered,
+  onFailed1,
+  onRedelivery,
+  onRedelivered,
+  onFailed2,
+}: AssignedOrdersProps) {
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const formatPrice = (price: number) =>
@@ -36,11 +46,11 @@ export function AvailableOrders({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Đơn hàng chờ nhận</h1>
+      <h1 className="text-2xl font-bold mb-4">Đơn đang giao</h1>
       {loading ? (
         <div>Đang tải...</div>
       ) : orders.length === 0 ? (
-        <div>Không có đơn hàng nào chờ nhận.</div>
+        <div>Không có đơn hàng nào đang giao.</div>
       ) : (
         <div className="space-y-4">
           {orders.map((order) => {
@@ -56,10 +66,10 @@ export function AvailableOrders({
                         </h3>
                         <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
                           <Calendar className="h-4 w-4" />
-                          <span>{formatDateTime(order.updated_at)}</span>
+                          <span>{formatDateTime(order.created_at)}</span>
                         </div>
                       </div>
-                      <Badge variant="outline">Chờ nhận</Badge>
+                      <Badge variant="outline">{order.status}</Badge>
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-orange-600">
@@ -67,7 +77,7 @@ export function AvailableOrders({
                       </div>
                       <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
                         <CreditCard className="h-4 w-4" />
-                        <span>COD</span>
+                        <span>{order.payment_method}</span>
                       </div>
                     </div>
                   </div>
@@ -78,7 +88,7 @@ export function AvailableOrders({
                       <div className="flex items-center gap-2">
                         <Package className="h-4 w-4 text-gray-500" />
                         <span className="text-sm text-gray-600">
-                          Địa chỉ: {order.address}
+                          Số món: {order.item_count}
                         </span>
                       </div>
                       <Badge variant="outline" className="text-xs">
@@ -87,20 +97,63 @@ export function AvailableOrders({
                     </div>
                     <div className="flex gap-2">
                       <Button
-                        variant="outline"
                         onClick={() => {
                           setExpandedId(isExpanded ? null : order.order_id);
                           if (!isExpanded) onViewDetail(order.order_id);
                         }}
+                        variant="outline"
                       >
                         Xem chi tiết
                       </Button>
-                      <Button
-                        onClick={() => onAssign(order.order_id)}
-                        variant="default"
-                      >
-                        Nhận đơn
-                      </Button>
+                      {(order.status === "pending" ||
+                        order.status === "assigned") && (
+                        <Button
+                          onClick={() => onOnWay(order.order_id)}
+                          variant="default"
+                        >
+                          Đi giao
+                        </Button>
+                      )}
+                      {order.status === "on_way" && (
+                        <>
+                          <Button
+                            onClick={() => onDelivered(order.order_id)}
+                            variant="default"
+                          >
+                            Đã giao
+                          </Button>
+                          <Button
+                            onClick={() => onFailed1(order.order_id)}
+                            variant="destructive"
+                          >
+                            Giao thất bại lần 1
+                          </Button>
+                        </>
+                      )}
+                      {order.status === "failed" && (
+                        <Button
+                          onClick={() => onRedelivery(order.order_id)}
+                          variant="default"
+                        >
+                          Giao lại
+                        </Button>
+                      )}
+                      {order.status === "returned" && (
+                        <>
+                          <Button
+                            onClick={() => onRedelivered(order.order_id)}
+                            variant="default"
+                          >
+                            Đã giao lại
+                          </Button>
+                          <Button
+                            onClick={() => onFailed2(order.order_id)}
+                            variant="destructive"
+                          >
+                            Giao thất bại lần 2
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </CardContent>

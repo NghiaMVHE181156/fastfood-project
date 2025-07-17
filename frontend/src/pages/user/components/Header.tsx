@@ -23,24 +23,33 @@ export function Header({
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      if (authApi.isAuthenticated()) {
-        try {
-          const res = await authApi.getProfile();
-          if (res.data.success && res.data.data) {
-            setUser(res.data.data);
-          } else {
-            setUser(null);
-          }
-        } catch {
-          setUser(null);
-        }
+    if (authApi.isAuthenticated()) {
+      const userData = authApi.getUser();
+      if (userData && userData.role === "user") {
+        // Nếu là user, có thể gọi API để lấy thông tin mới nhất
+        authApi
+          .getProfile()
+          .then((res) => {
+            if (res.data.success && res.data.data) {
+              setUser(res.data.data);
+            } else {
+              setUser(userData);
+            }
+            setLoading(false);
+          })
+          .catch(() => {
+            setUser(userData);
+            setLoading(false);
+          });
       } else {
-        setUser(null);
+        // Nếu là admin/shipper, chỉ lấy từ localStorage
+        setUser(userData);
+        setLoading(false);
       }
+    } else {
+      setUser(null);
       setLoading(false);
-    };
-    fetchUser();
+    }
   }, []);
 
   const handleLogout = () => {
@@ -106,7 +115,7 @@ export function Header({
                     }
                     title="Xem hồ sơ"
                   >
-                    {user.full_name || user.user_name}
+                    {user.full_name}
                   </span>
                   <button
                     className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm"
