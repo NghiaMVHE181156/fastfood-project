@@ -33,9 +33,17 @@ export const authApi = {
     if (res.data.success && res.data.data) {
       // Save token
       localStorage.setItem("token", res.data.data.token);
-      // Fetch and save user profile
+      // Fetch and save user profile by role
       try {
-        const profileRes = await authApi.getProfile();
+        const role = res.data.data.role || "user";
+        let profileRes;
+        if (role === "admin") {
+          profileRes = await authApi.getAdminProfile();
+        } else if (role === "shipper") {
+          profileRes = await authApi.getShipperProfile();
+        } else {
+          profileRes = await authApi.getProfile();
+        }
         if (profileRes.data.success && profileRes.data.data) {
           localStorage.setItem("user", JSON.stringify(profileRes.data.data));
         }

@@ -17,6 +17,11 @@ const menuItems = [
     icon: Truck,
     id: "available-orders",
   },
+  {
+    title: "Đơn đang giao",
+    icon: Truck,
+    id: "assigned-orders",
+  },
 ];
 
 interface ShipperSidebarProps {
