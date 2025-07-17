@@ -169,17 +169,7 @@ exports.getOrderDetail = async (orderId, role, id) => {
       return null;
     }
   } else if (role === "shipper") {
-    // Kiểm tra đơn hàng có thuộc shipper không (Shipping)
-    const shippingResult = await pool
-      .request()
-      .input("order_id", sql.Int, orderId)
-      .input("shipper_id", sql.Int, id).query(`
-        SELECT * FROM Shipping WHERE order_id = @order_id AND shipper_id = @shipper_id
-      `);
-    if (shippingResult.recordset.length === 0) {
-      return null;
-    }
-    // Lấy order
+    // Chỉ kiểm tra đơn hàng có tồn tại, không cần kiểm tra shipper_id
     orderResult = await pool
       .request()
       .input("order_id", sql.Int, orderId)
