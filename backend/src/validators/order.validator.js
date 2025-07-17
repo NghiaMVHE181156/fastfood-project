@@ -44,7 +44,7 @@ const createOrderValidation = [
     .trim()
     .notEmpty()
     .withMessage("Payment method is required")
-    .isIn(["COD", "VNPAY"])
+    .isIn(["COD", "VNPAY", "MOMO"])
     .withMessage("Payment method must be either 'COD' or 'VNPAY'"),
 ];
 
